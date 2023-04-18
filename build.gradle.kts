@@ -1,0 +1,70 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+	id("org.springframework.boot") version "3.1.0-SNAPSHOT"
+	id("io.spring.dependency-management") version "1.1.0"
+	kotlin("jvm") version "1.8.10"
+	kotlin("plugin.spring") version "1.8.10"
+	id("org.hibernate.orm") version "6.2.0.CR4"
+	kotlin("plugin.jpa") version "1.8.10"
+	id("com.netflix.dgs.codegen") version "5.7.0"
+}
+
+group = "com.example"
+version = "0.0.1-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_17
+
+configurations {
+	compileOnly {
+		extendsFrom(configurations.annotationProcessor.get())
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url = uri("https://repo.spring.io/milestone") }
+	maven { url = uri("https://repo.spring.io/snapshot") }
+}
+
+dependencies {
+	implementation("com.netflix.graphql.dgs:graphql-dgs")
+	implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:6.0.1"))
+	implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")
+	implementation("com.graphql-java:graphql-java:19.2")
+	//implementation("org.springframework.boot:spring-boot-starter-data-rest")
+	//implementation("org.springframework.boot:spring-boot-starter-graphql")
+	//implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("jakarta.annotation:jakarta.annotation-api")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	//developmentOnly("org.springframework.boot:spring-boot-devtools")
+	runtimeOnly("com.mysql:mysql-connector-j")
+	//annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	//testImplementation("org.springframework.boot:spring-boot-starter-test")
+	//testImplementation("org.springframework:spring-webflux")
+	testImplementation("org.springframework.graphql:spring-graphql-test")
+}
+
+tasks.withType<KotlinCompile> {
+	kotlinOptions {
+		freeCompilerArgs = listOf("-Xjsr305=strict")
+		jvmTarget = "17"
+	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+}
+
+//tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
+//	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/schema")
+//	packageName = "com.example.paymentsv2.generated" // The package name to use to generate sources
+//	generateClient = true // Enable generating the type safe query API
+//}
+
+hibernate {
+	enhancement
+}
