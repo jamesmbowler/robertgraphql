@@ -2,15 +2,8 @@ package com.example.paymentsv2.utils
 
 import com.example.paymentsv2.filters.EmployeeFilter
 import com.example.paymentsv2.filters.Filter
-import com.example.paymentsv2.models.Address
-import com.example.paymentsv2.models.Department
-import com.example.paymentsv2.models.Employee
-import com.example.paymentsv2.models.Organization
 import graphql.schema.*
-import jakarta.persistence.criteria.Fetch
-import jakarta.persistence.criteria.Join
-import jakarta.persistence.criteria.Predicate
-import jakarta.persistence.criteria.Root
+import jakarta.persistence.criteria.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
@@ -21,22 +14,15 @@ class JoinChildren {
     @Autowired
     var filterer: Filter = Filter()
 
-    companion object {
-        var joinFilters: MutableMap<String, Pair<Join<Any, Any>, MutableList<Filter>?>> = mutableMapOf()
-    }
-
     fun <T>fetchChildEntity(
         fields: List<SelectedField>,
-        parentEntityClass: Class<*>,
-        //specs: Specification<T>?,
         rootFilters: List<Filter>?
     ): Specification<T>? {
         val filters: MutableSet<Pair<Join<Any,Any>, MutableList<Filter>>> = mutableSetOf()
         val predicates = mutableListOf<Predicate>()
 
-        //val combinedSpec = specs.reduceOrNull { acc, spec -> acc?.and(spec) ?: spec }
         return Specification { root, criteriaQuery, criteriaBuilder ->
-            joinRoot<T>(root, fields, parentEntityClass, filters)
+            joinRoot<T>(root, fields, filters)
             filters.forEach {
                 val (join, filter) = it
 
@@ -67,15 +53,14 @@ class JoinChildren {
     }
 
     private fun joinsHelper(
-        parentEntityClass: Class<*>,
         f: Fetch<Any, Any>,
         fields: List<SelectedField>,
         filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>>
     ) {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
-                val fetch = fetchJoin(f, fi, parentEntityClass)
-                joinsHelper(getType(fi.name), fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields, filters)
+                val fetch = fetchJoin(f, fi)
+                joinsHelper(fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields, filters)
             }
         }
     }
@@ -83,16 +68,13 @@ class JoinChildren {
     private fun <T> joinRoot(
         root: Root<T>,
         fields: List<SelectedField>,
-        parentEntityClass: Class<*>,
         filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>>
     ): Set<Pair<Join<Any, Any>, MutableList<Filter>>> {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
-                val fetch = rootFetch(root, fi, parentEntityClass) as Fetch<Any, Any>
-
+                val fetch = rootFetch(root, fi) as Fetch<Any, Any>
                 filters.addAll(filter(fi, fetch))
-
-                joinsHelper(getType(fi.name), fetch, fi.selectionSet.immediateFields, filters)
+                joinsHelper(fetch, fi.selectionSet.immediateFields, filters)
             }
         }
         return filters
@@ -136,57 +118,26 @@ class JoinChildren {
 
     fun <T> rootFetch(
         root: Root<T>,
-        field: SelectedField,
-        parentEntityClass: Class<*>
+        field: SelectedField
     ): Fetch<out Any, out Any> {
-        return getRootJoin(parentEntityClass, field.name, root)
+        return root.fetch(field.name, JoinType.LEFT)
     }
 
     fun fetchJoin(
         fetch: Fetch<Any, Any>,
-        field: SelectedField,
-        parentEntityClass: Class<*>
+        field: SelectedField
     ): Fetch<out Any, out Any>? {
-        return getJoin(parentEntityClass, field.name, fetch)
+        return fetch.fetch(field.name, JoinType.LEFT)
     }
 
     fun getType(string: String): Class<out Any> {
         try {
             return when (string) {
-                "employees", "employee" -> Employee::class.java
-                "addresses", "address" -> Address::class.java
-                "department", "departments" -> Department::class.java
-                "organizations" -> Organization::class.java
                 "EmployeeFilter" -> EmployeeFilter::class.java
                 else -> null
             } ?: throw Exception("No class found for $string")
         } catch (e: Exception ) {
             throw (e)
-        }
-    }
-
-    fun getJoin(
-        parentEntityClass: Class<*>,
-        joinField: String,
-        fetch: Fetch<Any, Any>,
-    ): Fetch<out Any, out Any> {
-        return when(parentEntityClass) {
-            Department::class.java -> DepartmentJoins.getJoin(joinField, fetch)
-            Employee::class.java -> EmployeeJoins.getJoin(joinField, fetch)
-            Address::class.java -> AddressJoins.getJoin(joinField, fetch)
-            else -> {throw Exception("no entity class $parentEntityClass")}
-        }
-    }
-    fun <T> getRootJoin(
-        parentEntityClass: Class<*>,
-        joinField: String,
-        root: Root<T>
-    ): Fetch<out Any, out Any> {
-        return when(parentEntityClass) {
-            Department::class.java -> DepartmentJoins.getRootJoin(joinField, root)
-            Employee::class.java -> EmployeeJoins.getRootJoin(joinField, root)
-            Address::class.java -> AddressJoins.getRootJoin(joinField, root)
-            else -> {throw Exception("no entity class $parentEntityClass")}
         }
     }
 }

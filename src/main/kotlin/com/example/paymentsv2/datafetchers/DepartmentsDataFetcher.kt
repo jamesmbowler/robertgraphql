@@ -29,9 +29,7 @@ class DepartmentsDataFetcher {
 
         val spec:Specification<Department>? = JoinChildren().fetchChildEntity(
             environment.selectionSet.immediateFields,
-            Department::class.java,
             filter
-            //filterer.addFilters(filter, DepartmentFilter::class.java)
         )
 
         //return repository.findAll()
