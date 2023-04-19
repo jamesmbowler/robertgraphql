@@ -9,6 +9,7 @@ import com.example.paymentsv2.models.Organization
 import graphql.schema.*
 import jakarta.persistence.criteria.Fetch
 import jakarta.persistence.criteria.Join
+import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.domain.Specification
@@ -27,23 +28,40 @@ class JoinChildren {
     fun <T>fetchChildEntity(
         fields: List<SelectedField>,
         parentEntityClass: Class<*>,
-        vararg specs: Specification<T>?
+        //specs: Specification<T>?,
+        rootFilters: List<Filter>?
     ): Specification<T>? {
         val filters: MutableSet<Pair<Join<Any,Any>, MutableList<Filter>>> = mutableSetOf()
-        val combinedSpec = specs.reduceOrNull { acc, spec -> acc?.and(spec) ?: spec }
+        val predicates = mutableListOf<Predicate>()
+
+        //val combinedSpec = specs.reduceOrNull { acc, spec -> acc?.and(spec) ?: spec }
         return Specification { root, criteriaQuery, criteriaBuilder ->
             joinRoot<T>(root, fields, parentEntityClass, filters)
             filters.forEach {
                 val (join, filter) = it
+
                 filter.forEach {
                     for (field in it.getFilters()) {
-                        criteriaQuery.where(criteriaBuilder.equal(join.get<String>(field.name), field.value))
+                        predicates.add(
+                            field.addCondition(criteriaBuilder, join.get<String>(field.name))
+                        )
                     }
                 }
             }
-            if (combinedSpec != null) {
-                criteriaQuery.where(combinedSpec.toPredicate(root, criteriaQuery, criteriaBuilder))
+            if (rootFilters != null) {
+                for (f in rootFilters) {
+                    for (field in f.getFilters()) {
+                        predicates.add(
+                            field.addCondition(criteriaBuilder, root.get(field.name))
+                        )
+                    }
+                }
             }
+            criteriaQuery.where(criteriaBuilder.and(*predicates.toTypedArray()))
+
+//            if (specs != null) {
+//                criteriaQuery.where(specs.toPredicate(root, criteriaQuery, criteriaBuilder))
+//            }
             null
         }
     }
@@ -57,7 +75,6 @@ class JoinChildren {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
                 val fetch = fetchJoin(f, fi, parentEntityClass)
-
                 joinsHelper(getType(fi.name), fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields, filters)
             }
         }
@@ -73,10 +90,7 @@ class JoinChildren {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
                 val fetch = rootFetch(root, fi, parentEntityClass) as Fetch<Any, Any>
 
-                val fil = filter(fi)
-                if (fil.size > 0) {
-                    filters.add(Pair(fetch as Join<Any,Any>, fil))
-                }
+                filters.addAll(filter(fi, fetch))
 
                 joinsHelper(getType(fi.name), fetch, fi.selectionSet.immediateFields, filters)
             }
@@ -84,13 +98,14 @@ class JoinChildren {
         return filters
     }
 
-    fun filter(field: SelectedField): MutableList<Filter> {
+    fun filter(field: SelectedField, fetch: Fetch<Any, Any>): MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> {
         val filterClass = getFilterClass(field)
-        var filters: MutableList<Filter> = mutableListOf()
+        val filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> = mutableSetOf()
 
         for (a in field.arguments) {
-            filters = filterer.createFilter(a, filterClass)
+            filters.add(Pair(fetch as Join<Any,Any>, filterer.createFilter(a, filterClass)))
         }
+
         return filters
     }
 
