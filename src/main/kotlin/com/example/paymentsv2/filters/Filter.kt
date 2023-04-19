@@ -24,8 +24,8 @@ open class Filter {
             .toMutableList()
     }
 
-    fun <T> addFilters(spec: Specification<T>?, filters: List<Filter>?): Specification<T>? {
-        var resultSpec = spec
+    fun <T> addFilters(filters: List<Filter>?): Specification<T>? {
+        var resultSpec: Specification<T>? = null
         if (filters !== null) {
             for (f in filters) {
                 for (field in f.getFilters()) {

@@ -31,19 +31,14 @@ class DepartmentsDataFetcher {
         environment: DataFetchingEnvironment,
         @InputArgument filter: List<DepartmentFilter>? = null
     ): List<Department> {
-        var spec: Specification<Department>? = null
-        spec = filterer.addFilters(spec, filter)
 
-        val (specification, joinFilters) = JoinChildren().fetchChildEntity<Department>(
+        val spec:Specification<Department>? = JoinChildren().fetchChildEntity(
             environment.selectionSet.immediateFields,
-            Department::class.java
+            Department::class.java,
+            filterer.addFilters(filter)
         )
-        spec = spec?.and(specification as Specification<Department>?)
-//        joinFilters.entries.forEach {
-//            val (join, filters) = joinFilters[it.key] ?: Pair(null, mutableListOf())
-//            spec?.and(filterer.addJoinFilters(spec, filters, join!!))
-//        }
 
+        //return repository.findAll()
         return repository.findAll(spec!!)
     }
 

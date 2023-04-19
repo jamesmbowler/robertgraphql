@@ -26,24 +26,39 @@ class JoinChildren {
 
     fun <T>fetchChildEntity(
         fields: List<SelectedField>,
-        parentEntityClass: Class<*>
-    ): Pair<Specification<T>, MutableMap<String, Pair<Join<Any, Any>, MutableList<Filter>?>>> {
-        val specification = Specification<T> { root, criteriaQuery, criteriaBuilder ->
-            joinRoot(root, fields, parentEntityClass)
+        parentEntityClass: Class<*>,
+        vararg specs: Specification<T>?
+    ): Specification<T>? {
+        val filters: MutableSet<Pair<Join<Any,Any>, MutableList<Filter>>> = mutableSetOf()
+        val combinedSpec = specs.reduceOrNull { acc, spec -> acc?.and(spec) ?: spec }
+        return Specification { root, criteriaQuery, criteriaBuilder ->
+            joinRoot<T>(root, fields, parentEntityClass, filters)
+            filters.forEach {
+                val (join, filter) = it
+                filter.forEach {
+                    for (field in it.getFilters()) {
+                        criteriaQuery.where(criteriaBuilder.equal(join.get<String>(field.name), field.value))
+                    }
+                }
+            }
+            if (combinedSpec != null) {
+                criteriaQuery.where(combinedSpec.toPredicate(root, criteriaQuery, criteriaBuilder))
+            }
             null
         }
-        return Pair(specification, joinFilters)
     }
 
     private fun joinsHelper(
         parentEntityClass: Class<*>,
         f: Fetch<Any, Any>,
-        fields: List<SelectedField>
+        fields: List<SelectedField>,
+        filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>>
     ) {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
                 val fetch = fetchJoin(f, fi, parentEntityClass)
-                joinsHelper(getType(fi.name), fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields)
+
+                joinsHelper(getType(fi.name), fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields, filters)
             }
         }
     }
@@ -51,31 +66,33 @@ class JoinChildren {
     private fun <T> joinRoot(
         root: Root<T>,
         fields: List<SelectedField>,
-        parentEntityClass: Class<*>
-    ) {
+        parentEntityClass: Class<*>,
+        filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>>
+    ): Set<Pair<Join<Any, Any>, MutableList<Filter>>> {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
                 val fetch = rootFetch(root, fi, parentEntityClass) as Fetch<Any, Any>
 
-//                val fil = filter(fi)
-//                if (fil != null) {
-//                    joinFilters[fi.name] = Pair(fetch as Join<Any,Any>, fil)
-//                }
+                val fil = filter(fi)
+                if (fil.size > 0) {
+                    filters.add(Pair(fetch as Join<Any,Any>, fil))
+                }
 
-                joinsHelper(getType(fi.name), fetch, fi.selectionSet.immediateFields)
+                joinsHelper(getType(fi.name), fetch, fi.selectionSet.immediateFields, filters)
             }
         }
+        return filters
     }
-//
-//    fun filter(field: SelectedField): MutableList<Filter>? {
-//        val filterClass = getFilterClass(field)
-//        var filters: MutableList<Filter>? = mutableListOf()
-//
-//        for (a in field.arguments) {
-//            filters = filterer.createFilter(a, filterClass)
-//        }
-//        return filters
-//    }
+
+    fun filter(field: SelectedField): MutableList<Filter> {
+        val filterClass = getFilterClass(field)
+        var filters: MutableList<Filter> = mutableListOf()
+
+        for (a in field.arguments) {
+            filters = filterer.createFilter(a, filterClass)
+        }
+        return filters
+    }
 
     fun parseFilter(fieldDefinition: GraphQLFieldDefinition): GraphQLInputObjectType? {
         val filterArg = fieldDefinition.arguments.find { it.name == "filter" } ?: return null
@@ -94,7 +111,7 @@ class JoinChildren {
 
     fun getFilterClass(field: SelectedField): Class<*>? {
         for (d in field.fieldDefinitions) {
-            val filter = parseFilter(d) ?: null
+            val filter = parseFilter(d)
             if (filter != null) {
                 return getType(filter.name)
             }
@@ -107,7 +124,7 @@ class JoinChildren {
         field: SelectedField,
         parentEntityClass: Class<*>
     ): Fetch<out Any, out Any> {
-        return getRootJoin<T>(parentEntityClass, field.name, root)
+        return getRootJoin(parentEntityClass, field.name, root)
     }
 
     fun fetchJoin(
