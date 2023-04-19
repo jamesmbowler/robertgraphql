@@ -1,6 +1,5 @@
 package com.example.paymentsv2.filters
 
-import jakarta.persistence.criteria.Join
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
 import kotlin.reflect.full.declaredMemberProperties
@@ -24,8 +23,8 @@ open class Filter {
             .toMutableList()
     }
 
-    fun <T> addFilters(spec: Specification<T>?, filters: List<Filter>?): Specification<T>? {
-        var resultSpec = spec
+    fun <T> addSpecFilters(filters: List<Filter>?): Specification<T>? {
+        var resultSpec: Specification<T>? = null
         if (filters !== null) {
             for (f in filters) {
                 for (field in f.getFilters()) {
@@ -40,15 +39,15 @@ open class Filter {
         return resultSpec
     }
 
-    fun <T> addJoinFilters(spec: Specification<T>?, filters: List<Filter>?, join: Join<Any,Any>): Specification<T>? {
-        var resultSpec = spec
+    fun <T> addFilters(filters: List<Filter>?): Specification<T>? {
+        var resultSpec: Specification<T>? = null
         if (filters !== null) {
             for (f in filters) {
                 for (field in f.getFilters()) {
                     resultSpec = if (field.queryOperator == QueryOperator.AND) {
-                        resultSpec?.and(field.filtera(join)) ?: field.filtera(join)
+                        resultSpec?.and(field.filter()) ?: field.filter()
                     } else {
-                        resultSpec?.or(field.filtera(join)) ?: field.filtera(join)
+                        resultSpec?.or(field.filter()) ?: field.filter()
                     }
                 }
             }
