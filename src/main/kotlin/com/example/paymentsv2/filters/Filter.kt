@@ -22,56 +22,6 @@ open class Filter {
             .toMutableList()
     }
 
-//    fun <T> addSpecFilters(filters: List<Filter>?): Specification<T>? {
-//        var resultSpec: Specification<T>? = null
-//        if (filters !== null) {
-//            for (f in filters) {
-//                for (field in f.getFilters()) {
-//                    resultSpec = if (field.queryOperator == QueryOperator.AND) {
-//                        resultSpec?.and(field.filter()) ?: field.filter()
-//                    } else {
-//                        resultSpec?.or(field.filter()) ?: field.filter()
-//                    }
-//                }
-//            }
-//        }
-//        return resultSpec
-//    }
-
-//    fun <T> addFilters(filters: List<Filter>?): Specification<T>? {
-//        var resultSpec: Specification<T>? = null
-//        if (filters !== null) {
-//            for (f in filters) {
-//                for (field in f.getFilters()) {
-//                    resultSpec = if (field.queryOperator == QueryOperator.AND) {
-//                        resultSpec?.and(field.filter()) ?: field.filter()
-//                    } else {
-//                        resultSpec?.or(field.filter()) ?: field.filter()
-//                    }
-//                }
-//            }
-//        }
-//        return resultSpec
-//    }
-
-//    fun createFilter(a: MutableMap.MutableEntry<String, Any>, filterClass: Class<*>?): MutableList<Filter> {
-//
-//        val filterFields = mutableListOf<Filter>()
-//
-//        val filterMap = a.value as MutableList<Map<String, Any>>
-//
-//        filterMap.forEach { item ->
-//            val idFilter = item["id"] as Map <String, Any>?
-//            val firstNameFilter = item["firstName"] as Map<String, Any>?
-//            val employeeFilter = EmployeeFilter(
-//                id = createFilterField(idFilter),
-//                firstName = createFilterField(firstNameFilter)
-//            )
-//            filterFields.add(employeeFilter)
-//        }
-//        return filterFields
-//    }
-
     fun createFilter(a: MutableMap.MutableEntry<String, Any>, filterClass: Class<*>?): MutableList<Filter> {
 
         val filterFields = mutableListOf<Filter>()
@@ -108,14 +58,10 @@ open class Filter {
             val value = filterArguments["value"] as String
             val queryOperator = QueryOperator.valueOf((filterArguments["queryOperator"] as String).toUpperCase())
             return when (fieldType) {
-//                Int::class.java -> IntFilterField(value as String?, operator as IntFilterOperators?)
-//                String::class.java -> FilterField(value as String?, operator as StringFilterOperators?)
                 IntFilterField::class.java -> IntFilterField(value = value, operator = operator, name = name)
                 FilterField::class.java -> FilterField(value = value, operator = operator)
                 else -> null
             }
-
-           // return FilterField(operator = operator, value = value, queryOperator = queryOperator)
         }
         return null
     }

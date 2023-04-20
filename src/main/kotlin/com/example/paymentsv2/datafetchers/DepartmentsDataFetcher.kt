@@ -31,19 +31,6 @@ class DepartmentsDataFetcher {
             filter
         )
 
-        //return repository.findAll()
         return repository.findAll(spec!!)
     }
-
-
-//    @DgsData(parentType = "Department", field = "employees")
-//    fun employees(
-//        environment: DataFetchingEnvironment,
-//        @InputArgument filter: List<EmployeeFilter>? = null
-//    ): List<Employee>? {
-//
-//        var test = filter
-//
-//        return null
-//    }
 }

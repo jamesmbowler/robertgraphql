@@ -43,7 +43,6 @@ class JoinChildren {
                 }
             }
             criteriaQuery.where(criteriaBuilder.and(*predicates.toTypedArray()))
-
             null
         }
     }
