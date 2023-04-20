@@ -63,12 +63,17 @@ type Employee {
     salary: Int
     age: Int
     departments: [Department],
-    addresses: [Address]
+    addresses(filter: [AddressFilter]): [Address]
 }
 
 input EmployeeFilter {
     id: FilterField
     firstName: FilterField
+}
+
+input AddressFilter {
+    id: IntFilterField
+    street: FilterField
 }
 
 type Address {
