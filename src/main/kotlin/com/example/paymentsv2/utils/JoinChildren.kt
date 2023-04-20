@@ -25,11 +25,10 @@ class JoinChildren {
             joinRoot<T>(root, fields, filters)
             filters.forEach {
                 val (join, filter) = it
-
                 filter.forEach {
                     for (field in it.getFilters()) {
                         predicates.add(
-                            field.addCondition(criteriaBuilder, join.get<String>(field.name))
+                            field.addCondition(criteriaBuilder, join.get(field.name))
                         )
                     }
                 }
@@ -45,9 +44,6 @@ class JoinChildren {
             }
             criteriaQuery.where(criteriaBuilder.and(*predicates.toTypedArray()))
 
-//            if (specs != null) {
-//                criteriaQuery.where(specs.toPredicate(root, criteriaQuery, criteriaBuilder))
-//            }
             null
         }
     }
@@ -60,6 +56,7 @@ class JoinChildren {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
                 val fetch = fetchJoin(f, fi)
+               // filters.addAll(filter(fi, fetch as Fetch<Any, Any>))
                 joinsHelper(fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields, filters)
             }
         }

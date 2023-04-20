@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class DepartmentFilter(
   @JsonProperty("id")
-  var id: FilterField?,
+  var id: IntFilterField?,
   @JsonProperty("name")
   var name: FilterField?
 ): Filter()

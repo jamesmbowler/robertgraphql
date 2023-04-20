@@ -25,12 +25,32 @@ type Organization {
 }
 
 input DepartmentFilter {
-    id: FilterField
+    id: IntFilterField
     name: FilterField
 }
 
+enum IntFilters {
+    gt
+    ge
+    lt
+    le
+    eq
+}
+
+enum StringFilters {
+    eq
+    endsWith
+    startsWith
+    contains
+}
+input IntFilterField {
+    operator: IntFilters,
+    value: String!,
+    queryOperator: String = "AND"
+}
+
 input FilterField {
-    operator: String!
+    operator: StringFilters,
     value: String!,
     queryOperator: String = "AND"
 }

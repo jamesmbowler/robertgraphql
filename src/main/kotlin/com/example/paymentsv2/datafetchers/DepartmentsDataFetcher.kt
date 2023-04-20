@@ -26,7 +26,6 @@ class DepartmentsDataFetcher {
         environment: DataFetchingEnvironment,
         @InputArgument filter: List<DepartmentFilter>? = null
     ): List<Department> {
-
         val spec:Specification<Department>? = JoinChildren().fetchChildEntity(
             environment.selectionSet.immediateFields,
             filter
