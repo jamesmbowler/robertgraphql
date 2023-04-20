@@ -1,5 +1,6 @@
 package com.example.paymentsv2.utils
 
+import com.example.paymentsv2.filters.AddressFilter
 import com.example.paymentsv2.filters.EmployeeFilter
 import com.example.paymentsv2.filters.Filter
 import graphql.schema.*
@@ -55,7 +56,7 @@ class JoinChildren {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
                 val fetch = fetchJoin(f, fi)
-               // filters.addAll(filter(fi, fetch as Fetch<Any, Any>))
+                filters.addAll(filter(fi, fetch as Fetch<Any, Any>))
                 joinsHelper(fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields, filters)
             }
         }
@@ -130,6 +131,7 @@ class JoinChildren {
         try {
             return when (string) {
                 "EmployeeFilter" -> EmployeeFilter::class.java
+                "AddressFilter" -> AddressFilter::class.java
                 else -> null
             } ?: throw Exception("No class found for $string")
         } catch (e: Exception ) {
