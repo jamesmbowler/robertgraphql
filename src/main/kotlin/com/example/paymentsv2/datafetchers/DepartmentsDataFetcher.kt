@@ -1,7 +1,6 @@
 package com.example.paymentsv2.datafetchers
 
 import com.example.paymentsv2.filters.DepartmentFilter
-import com.example.paymentsv2.filters.Filter
 import com.example.paymentsv2.models.Department
 import com.example.paymentsv2.repositories.DepartmentRepository
 import com.example.paymentsv2.utils.JoinChildren
@@ -17,9 +16,6 @@ class DepartmentsDataFetcher {
 
     @Autowired
     lateinit var repository: DepartmentRepository
-
-    @Autowired
-    lateinit var filterer: Filter
 
     @DgsQuery
     fun departments(
