@@ -8,6 +8,7 @@ plugins {
 	id("org.hibernate.orm") version "6.2.0.CR4"
 	kotlin("plugin.jpa") version "1.8.10"
 	id("com.netflix.dgs.codegen") version "5.7.0"
+	//id("com.example.myplugin")
 }
 
 group = "com.example"
@@ -46,6 +47,7 @@ dependencies {
 	//testImplementation("org.springframework.boot:spring-boot-starter-test")
 	//testImplementation("org.springframework:spring-webflux")
 	testImplementation("org.springframework.graphql:spring-graphql-test")
+	implementation(gradleApi())
 }
 
 tasks.withType<KotlinCompile> {
@@ -59,12 +61,25 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-//tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
-//	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/schema")
-//	packageName = "com.example.paymentsv2.generated" // The package name to use to generate sources
-//	generateClient = true // Enable generating the type safe query API
-//}
+tasks.register<JavaExec>("runTableService") {
+	classpath = sourceSets["main"].runtimeClasspath
+	mainClass.set("com.example.paymentsv2.robert.TableServiceMain")
+	args("--spring.main.web-application-type=none", "--spring.main.lazy-initialization=true", "--tableservice.run-on-startup=true")
+}
+
+tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
+	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/schema")
+	packageName = "com.example.paymentsv2.generated" // The package name to use to generate sources
+	generateClient = true // Enable generating the type safe query API
+}
 
 hibernate {
 	enhancement
 }
+abstract class GreetingTask : DefaultTask() {
+	@TaskAction
+	fun greet() {
+		println("hello from GreetingTask")
+	}
+}
+tasks.register<GreetingTask>("hello")
