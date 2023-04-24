@@ -1,3 +1,4 @@
+import com.example.RobGenerator
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -28,12 +29,13 @@ repositories {
 }
 
 dependencies {
-	implementation("com.netflix.graphql.dgs:graphql-dgs")
+	implementation("com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-core:5.7.1")
 	implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:6.0.1"))
 	implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")
 	implementation("com.graphql-java:graphql-java:19.2")
+
 	//implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	//implementation("org.springframework.boot:spring-boot-starter-graphql")
 	//implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -75,4 +77,9 @@ tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
 
 hibernate {
 	enhancement
+}
+tasks.withType<RobGenerator> {
+	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/rob_schema")
+	packageName = "com.example.paymentsv2"
+	outputs.upToDateWhen { false }
 }
