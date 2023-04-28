@@ -14,8 +14,7 @@ class RepositoryGenerator(
 
     fun generateRepository(entityName: String, name: String) {
         val packageName = basePackage+ ".repositories"
-        val baseFilterClassName = ClassName("com.example.paymentsv2.repositories", "Filter")
-        val baseRepositoryClassName = ClassName("com.example.paymentsv2.repositories", "BaseRepository")
+
         val repositoryClass = ClassName(packageName, entityName + "Repository")
         val entityClass = ClassName("com.example.paymentsv2.models", name)
         val jpaRepository = ClassName("org.springframework.data.jpa.repository", "JpaRepository")
