@@ -1,4 +1,4 @@
-package com.example.paymentsv2.utils
+package com.example.paymentsv2.robert.utils
 
 enum class IntFilterOperators(override val value: String): FilterOperator {
     EQ("eq"),

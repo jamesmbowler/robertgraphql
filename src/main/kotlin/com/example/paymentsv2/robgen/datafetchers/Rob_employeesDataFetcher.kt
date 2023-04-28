@@ -3,7 +3,7 @@ package com.example.paymentsv2.robgen.datafetchers
 import com.example.paymentsv2.models.Employee
 import com.example.paymentsv2.robgen.filters.RobEmployeeFilter
 import com.example.paymentsv2.robgen.repositories.Rob_employeesRepository
-import com.example.paymentsv2.utils.JoinChildren
+import com.example.paymentsv2.robert.utils.JoinChildren
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
 import com.netflix.graphql.dgs.InputArgument

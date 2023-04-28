@@ -1,19 +1,15 @@
-package com.example.paymentsv2.utils
+package com.example.paymentsv2.robert.utils
 
-import com.example.paymentsv2.filters.Filter
+import com.example.paymentsv2.robert.filters.Filter
 import com.example.paymentsv2.robgen.filters.RobAddressFilter
 import com.example.paymentsv2.robgen.filters.RobEmployeeFilter
 import graphql.schema.*
 import jakarta.persistence.criteria.*
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
 
 @Component
 class JoinChildren {
-
-    @Autowired
-    var filterer: Filter = Filter()
 
     fun <T>fetchChildEntity(
         fields: List<SelectedField>,
@@ -55,9 +51,9 @@ class JoinChildren {
     ) {
         for (fi in fields) {
             if (fi.selectionSet.immediateFields.isNotEmpty()) {
-                val fetch = fetchJoin(f, fi)
+                val fetch: Fetch<Any, Any> = fetchJoin(f, fi) as Fetch<Any, Any>
                 filters.addAll(filter(fi, fetch as Fetch<Any, Any>))
-                joinsHelper(fetch as Fetch<Any, Any>, fi.selectionSet.immediateFields, filters)
+                joinsHelper(fetch, fi.selectionSet.immediateFields, filters)
             }
         }
     }
@@ -67,23 +63,27 @@ class JoinChildren {
         fields: List<SelectedField>,
         filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>>
     ): Set<Pair<Join<Any, Any>, MutableList<Filter>>> {
-        for (fi in fields) {
-            if (fi.selectionSet.immediateFields.isNotEmpty()) {
-                val fetch = rootFetch(root, fi) as Fetch<Any, Any>
-                filters.addAll(filter(fi, fetch))
-                joinsHelper(fetch, fi.selectionSet.immediateFields, filters)
+        for (field in fields) {
+            if (field.selectionSet.immediateFields.isNotEmpty()) {
+                val fetch = rootFetch(root, field) as Fetch<Any, Any>
+                filters.addAll(filter(field, fetch))
+                joinsHelper(fetch, field.selectionSet.immediateFields, filters)
             }
         }
         return filters
     }
 
     fun filter(field: SelectedField, fetch: Fetch<Any, Any>): MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> {
-        val filterClass = getFilterClass(field, field.arguments.entries.toTypedArray())
+        val filterClass = getFilterClass(field,
+            field.arguments.entries.firstOrNull { it.key == "filter" } as MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?)
         val filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> = mutableSetOf()
 
-        for (a in field.arguments) {
-            filters.add(Pair(fetch as Join<Any,Any>, filterer.createFilter(a, filterClass)))
-        }
+        if (filterClass == null) return filters
+
+        filters.add(Pair(fetch as Join<Any,Any>, filterClass!!.toMutableList()))
+//        for (a in field.arguments) {
+//            filters.add(Pair(fetch as Join<Any,Any>, filterer.createFilter(a, filterClass)))
+//        }
 
         return filters
     }
@@ -103,11 +103,14 @@ class JoinChildren {
         }
     }
 
-    fun getFilterClass(field: SelectedField, toTypedArray: Array<MutableMap.MutableEntry<String, Any>>): Class<*>? {
+    fun getFilterClass(
+        field: SelectedField,
+        arguments: MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?): Set<Filter>?
+    {
         for (d in field.fieldDefinitions) {
             val filter = parseFilter(d)
             if (filter != null) {
-                return getType(filter.name, toTypedArray)
+                return getType(filter.name, arguments)
             }
         }
         return null
@@ -127,11 +130,11 @@ class JoinChildren {
         return fetch.fetch(field.name, JoinType.LEFT)
     }
 
-    fun getType(string: String, toTypedArray: Array<MutableMap.MutableEntry<String, Any>>): Class<out Any> {
+    fun getType(string: String, filters: MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?): Set<Filter>? {
         try {
             return when (string) {
-                "RobEmployeeFilter" -> RobEmployeeFilter().javaClass
-                "RobAddressFilter" -> RobAddressFilter::class.java
+                "RobEmployeeFilter" -> filters?.value?.map { RobEmployeeFilter.fromMap(it) }?.toSet() ?: setOf()
+                "RobAddressFilter" -> filters?.value?.map { RobAddressFilter.fromMap(it) }?.toSet() ?: setOf()
                 else -> null
             } ?: throw Exception("No class found for $string")
         } catch (e: Exception ) {

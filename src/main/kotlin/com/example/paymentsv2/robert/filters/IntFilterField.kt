@@ -1,4 +1,4 @@
-package com.example.paymentsv2.filters
+package com.example.paymentsv2.robert.filters
 
 import org.springframework.stereotype.Component
 
@@ -15,4 +15,6 @@ class IntFilterField(
     value = value,
     operator = operator,
     queryOperator = queryOperator
-)
+) {
+
+}

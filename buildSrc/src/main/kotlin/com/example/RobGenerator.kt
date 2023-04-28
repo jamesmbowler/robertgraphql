@@ -33,8 +33,6 @@ open class RobGenerator : DefaultTask() {
 
     @TaskAction
     fun run() {
-        println("hello from GreetingTask")
-
         val schemaPaths = schemaPaths.map { Paths.get(it.toString()).toFile() }.sorted().toSet()
         schemaPaths.filter { !it.exists() }.forEach {
             logger.warn("Schema location ${it.absolutePath} does not exist")
@@ -69,11 +67,10 @@ open class RobGenerator : DefaultTask() {
             parser.parseDocument(reader, options)
         }
 
-        //logger.info(document.toString())
-        generateDataFetchers(document, packageName, document)
+        generateDataFetchers(document, packageName)
     }
 
-    private fun generateDataFetchers(document: Document, packageName: String, document1: Document): List<List<Boolean?>?> {
+    private fun generateDataFetchers(document: Document, packageName: String): List<List<Boolean?>?> {
         val defs = document.definitions
             .filterIsInstance<ObjectTypeDefinition>()
             .filter { it.name == "Query" }
