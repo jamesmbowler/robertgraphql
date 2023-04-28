@@ -20,26 +20,49 @@ package com.example
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import graphql.language.FieldDefinition
-import graphql.language.ObjectTypeDefinition
+import graphql.language.*
+import graphql.language.TypeName
 import java.io.File
 
-class DatafetcherGenerator(val packageDir: String, private val packageName: String) {
-    fun generate(query: ObjectTypeDefinition): List<Boolean> {
+class DatafetcherGenerator(
+    val packageDir: String,
+    private val packageName: String,
+    private val document: Document
+) {
+
+    fun generate(query: ObjectTypeDefinition): List<Boolean?>? {
         return query.fieldDefinitions.map { field ->
             createDatafetcher(field)
         }
     }
 
-    private fun createDatafetcher(field: FieldDefinition): Boolean {
-        val packageName = "$packageName.datafetchers"
+    private fun createDatafetcher(field: FieldDefinition): Boolean? {
+        val fetcherPackageName = "$packageName.datafetchers"
 
-        val name = "Rob" + field.name
-        val dataFetcherClassName = ClassName(packageName, name+ "DataFetcher")
-        val filter = ClassName(packageName + ".filters", name+"Filter")
-        val model = ClassName(packageName + ".models", name+"Department")
-        val repository = ClassName(packageName + ".repositories", "Repository")
-        val joinChildren = ClassName(packageName + ".utils", "JoinChildren")
+        val name = field.name.capitalize()
+        val dataFetcherClassName = ClassName(fetcherPackageName, name+ "DataFetcher")
+        var filterClassName = ClassName(packageName + ".filters", name+"Filter")
+        //val model = ClassName(packageName + ".models", name)
+
+        val filterArgument = getFieldFilterArgument(field.inputValueDefinitions)
+
+        val modelType = getUnwrappedTypeReturn(field) as TypeName
+        val model = ClassName(packageName.substringBeforeLast(".") + ".models", modelType.name)
+
+        if (filterArgument != null) {
+            val filterType = getUnwrappedType(filterArgument) as TypeName
+            val filterTypeName = filterType.name
+            val filter = document.definitions.filterIsInstance<InputObjectTypeDefinition>().filter {
+                it.name == filterTypeName
+            }.first()
+            filterClassName = ClassName(packageName + ".filters", filterTypeName)
+            FilterGenerator(packageDir, packageName).generateFilter(filter)
+
+        }
+        RepositoryGenerator(packageDir, packageName).generateRepository(name, modelType.name)
+
+        val repository = ClassName(packageName + ".repositories", name + "Repository")
+        val joinChildren = ClassName(packageName.substringBeforeLast(".") + ".utils", "JoinChildren")
         val dataFetchingEnvironment = ClassName("graphql.schema", "DataFetchingEnvironment")
         val specification = ClassName("org.springframework.data.jpa.domain", "Specification")
         val dgsComponent = ClassName("com.netflix.graphql.dgs", "DgsComponent")
@@ -53,6 +76,7 @@ class DatafetcherGenerator(val packageDir: String, private val packageName: Stri
             .addProperty(
                 PropertySpec.builder("repository", repository)
                     .addAnnotation(autowired)
+                    .addModifiers(KModifier.LATEINIT)
                     .mutable()
                     .build()
             )
@@ -62,8 +86,8 @@ class DatafetcherGenerator(val packageDir: String, private val packageName: Stri
                     .returns(List::class.asClassName().parameterizedBy(model))
                     .addParameter("environment", dataFetchingEnvironment)
                     .addParameter(
-                        ParameterSpec.builder("filter", List::class.asClassName().parameterizedBy(filter))
-                            .defaultValue("null")
+                        ParameterSpec.builder("filter", List::class.asClassName().parameterizedBy(filterClassName))
+                            //.defaultValue("null")
                             .addAnnotation(inputArgument)
                             .build()
                     )
@@ -77,13 +101,31 @@ class DatafetcherGenerator(val packageDir: String, private val packageName: Stri
             )
             .build()
 
-        val file = FileSpec.builder(packageName, dataFetcher::class.java.simpleName)
-            //.addType(dataFetcher)
+        val file = FileSpec.builder(fetcherPackageName, name + "DataFetcher")
+            .addType(dataFetcher)
             .build()
 
         file.writeTo(File(packageDir))
         return true
+    }
+    fun getUnwrappedType(inputValueDefinition: InputValueDefinition): Type<out Type<*>>? {
+        var type = inputValueDefinition.type
+        while (type is ListType) {
+            type = type.type
+        }
+        return type
+    }
 
+    fun getUnwrappedTypeReturn(inputValueDefinition: FieldDefinition): Type<out Type<*>>? {
+        var type = inputValueDefinition.type
+        while (type is ListType) {
+            type = type.type
+        }
+        return type
+    }
+
+    fun getFieldFilterArgument(inputValueDefinitions: MutableList<InputValueDefinition>): InputValueDefinition? {
+        return inputValueDefinitions.firstOrNull { it.name == "filter"}
     }
 }
 

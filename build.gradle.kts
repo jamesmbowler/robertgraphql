@@ -28,7 +28,17 @@ repositories {
 	maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
+configurations {
+	all {
+		exclude("spring-boot-starter-logging")
+		exclude("logback-classic")
+	}
+}
+
 dependencies {
+	implementation("ch.qos.logback:logback-classic:1.4.7")
+	implementation("org.slf4j:slf4j-api:2.0.7")
+
 	implementation("com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-core:5.7.1")
 	implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:6.0.1"))
 	implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
@@ -49,7 +59,7 @@ dependencies {
 	//testImplementation("org.springframework.boot:spring-boot-starter-test")
 	//testImplementation("org.springframework:spring-webflux")
 	testImplementation("org.springframework.graphql:spring-graphql-test")
-	implementation(gradleApi())
+	//implementation(gradleApi())
 }
 
 tasks.withType<KotlinCompile> {
@@ -70,7 +80,7 @@ tasks.withType<Test> {
 //}
 
 tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
-	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/schema")
+	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/rob_schema")
 	packageName = "com.example.paymentsv2.generated" // The package name to use to generate sources
 	generateClient = true // Enable generating the type safe query API
 }
@@ -80,6 +90,6 @@ hibernate {
 }
 tasks.withType<RobGenerator> {
 	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/rob_schema")
-	packageName = "com.example.paymentsv2"
+	packageName = "com.example.paymentsv2.robgen"
 	outputs.upToDateWhen { false }
 }

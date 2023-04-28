@@ -1,8 +1,8 @@
 package com.example.paymentsv2.utils
 
-import com.example.paymentsv2.filters.AddressFilter
-import com.example.paymentsv2.filters.EmployeeFilter
 import com.example.paymentsv2.filters.Filter
+import com.example.paymentsv2.robgen.filters.RobAddressFilter
+import com.example.paymentsv2.robgen.filters.RobEmployeeFilter
 import graphql.schema.*
 import jakarta.persistence.criteria.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -78,7 +78,7 @@ class JoinChildren {
     }
 
     fun filter(field: SelectedField, fetch: Fetch<Any, Any>): MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> {
-        val filterClass = getFilterClass(field)
+        val filterClass = getFilterClass(field, field.arguments.entries.toTypedArray())
         val filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> = mutableSetOf()
 
         for (a in field.arguments) {
@@ -103,11 +103,11 @@ class JoinChildren {
         }
     }
 
-    fun getFilterClass(field: SelectedField): Class<*>? {
+    fun getFilterClass(field: SelectedField, toTypedArray: Array<MutableMap.MutableEntry<String, Any>>): Class<*>? {
         for (d in field.fieldDefinitions) {
             val filter = parseFilter(d)
             if (filter != null) {
-                return getType(filter.name)
+                return getType(filter.name, toTypedArray)
             }
         }
         return null
@@ -127,11 +127,11 @@ class JoinChildren {
         return fetch.fetch(field.name, JoinType.LEFT)
     }
 
-    fun getType(string: String): Class<out Any> {
+    fun getType(string: String, toTypedArray: Array<MutableMap.MutableEntry<String, Any>>): Class<out Any> {
         try {
             return when (string) {
-                "EmployeeFilter" -> EmployeeFilter::class.java
-                "AddressFilter" -> AddressFilter::class.java
+                "RobEmployeeFilter" -> RobEmployeeFilter().javaClass
+                "RobAddressFilter" -> RobAddressFilter::class.java
                 else -> null
             } ?: throw Exception("No class found for $string")
         } catch (e: Exception ) {

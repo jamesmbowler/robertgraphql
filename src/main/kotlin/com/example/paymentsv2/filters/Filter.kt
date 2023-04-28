@@ -40,10 +40,12 @@ open class Filter {
                 // get the filter value from the filterMap based on the field name
                 val filterValue = item[fieldName] as Map<String, Any>?
                 // create a filter field using the createFilterField function
-                val filterField = createFilterField(filterValue, field.type, fieldName)
-                // set the value of the field on the filter object using reflection
-                field.isAccessible = true
-                field.set(filterObj, filterField)
+                if (filterValue != null) {
+                    val filterField = createFilterField(filterValue, field.type, fieldName)
+                    // set the value of the field on the filter object using reflection
+                    field.isAccessible = true
+                    field.set(filterObj, filterField)
+                }
             }
 
             filterFields.add(filterObj)
