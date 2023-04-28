@@ -1,0 +1,25 @@
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <jmxConfigurator />
+    <shutdownHook />
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+    <conversionRule conversionWord="clr" converterClass="ch.qos.logback.classic.pattern.ANSIConstants" />
+    <conversionRule conversionWord="wex" converterClass="ch.qos.logback.classic.pattern.ThrowableHandlingConverter" />
+    <conversionRule conversionWord="wEx" converterClass="ch.qos.logback.classic.pattern.ThrowableHandlingConverter" />
+    <conversionRule conversionWord="wEx{0}" converterClass="ch.qos.logback.classic.pattern.ThrowableHandlingConverter">
+        <param name="0" value="0" />
+    </conversionRule>
+</configuration>

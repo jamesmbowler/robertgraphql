@@ -1,8 +1,8 @@
 type Query {
-    departments(filter: [DepartmentFilter]) : [Department]
-    employees(filter: [EmployeeFilter]) : [Employee]
-    addresses: [Address],
-    organizations: [Organization]
+    rob_departments(filter: [RobDepartmentFilter]) : [Department]
+    rob_employees(filter: [RobEmployeeFilter]) : [Employee]
+    rob_addresses(filter: [RobAddressFilter]): [Address],
+    rob_organizations(filter: [RobOrganizationsFilter]): [Organization]
 }
 
 input DepartmentInput {
@@ -13,7 +13,7 @@ input DepartmentInput {
 type Department {
     id: ID
     name: String
-    employees(filter: [EmployeeFilter]): [Employee],
+    employees(filter: [RobEmployeeFilter]): [Employee],
     organizations: [Organization]
 }
 
@@ -24,7 +24,12 @@ type Organization {
     departments: [Department]
 }
 
-input DepartmentFilter {
+input RobDepartmentFilter {
+    id: IntFilterField
+    name: FilterField
+}
+
+input RobOrganizationsFilter {
     id: IntFilterField
     name: FilterField
 }
@@ -63,15 +68,15 @@ type Employee {
     salary: Int
     age: Int
     departments: [Department],
-    addresses(filter: [AddressFilter]): [Address]
+    addresses(filter: [RobAddressFilter]): [Address]
 }
 
-input EmployeeFilter {
-    id: FilterField
+input RobEmployeeFilter {
+    id: IntFilterField
     firstName: FilterField
 }
 
-input AddressFilter {
+input RobAddressFilter {
     id: IntFilterField
     street: FilterField
 }

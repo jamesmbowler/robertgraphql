@@ -10,10 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.domain.Specification
 
 @DgsComponent
-class AddressesDataFetcher {
-
-    @Autowired
-    lateinit var repository: AddressRepository
+class AddressesDataFetcher @Autowired constructor(
+    var repository: AddressRepository
+) {
 
     @DgsQuery
     fun addresses(environment: DataFetchingEnvironment): List<Address> {

@@ -10,8 +10,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Paths
 
@@ -19,18 +17,18 @@ open class RobGenerator : DefaultTask() {
 
     companion object {
         private const val SDL_MAX_ALLOWED_SCHEMA_TOKENS: Int = Int.MAX_VALUE
-        private val logger: Logger = LoggerFactory.getLogger(RobGenerator::class.java)
+       // private val logger: Logger = LoggerFactory.getLogger(RobGenerator::class.java)
     }
 
     @InputFiles
     var schemaPaths = mutableListOf<Any>("${project.projectDir}/src/main/resources/rob_schema")
 
     @Input
-    var packageName = "com.netflix.dgs.codegen.generated"
+    var packageName = ""
 
     @OutputDirectory
     fun getOutputDir(): File {
-        return Paths.get("${project.projectDir}/src/main/kotlin/com/example/paymentsv2/robgen").toFile()
+        return Paths.get("${project.projectDir}/src/main/kotlin").toFile()
     }
 
     @TaskAction
@@ -72,15 +70,14 @@ open class RobGenerator : DefaultTask() {
         }
 
         //logger.info(document.toString())
-        generateDataFetchers(document, packageName)
-
+        generateDataFetchers(document, packageName, document)
     }
 
-    private fun generateDataFetchers(document: Document, packageName: String): List<List<Boolean>> {
+    private fun generateDataFetchers(document: Document, packageName: String, document1: Document): List<List<Boolean?>?> {
         val defs = document.definitions
             .filterIsInstance<ObjectTypeDefinition>()
             .filter { it.name == "Query" }
 
-        return defs.map { DatafetcherGenerator("${project.projectDir}/src/main/kotlin/com/example/paymentsv2/robgen", packageName).generate(it) }
+        return defs.map { DatafetcherGenerator("${project.projectDir}/src/main/kotlin", packageName, document).generate(it) }
     }
 }
