@@ -11,8 +11,8 @@ and run
 {
   rob_departments(filter: [
     {
-      name:{operator:contains, value: "test"},
-    	id:{operator:le, value: "10", queryOperator:"OR"}
+        name:{operator:contains, value: "test"},
+        id:{operator:le, value: "10", queryOperator:"OR"}
      }
   ]) {
     id
@@ -33,7 +33,6 @@ and run
         filter:[
           {street:{operator:endsWith, value:"7"}},
           {street:{operator:contains, value:"Tes"}}
-        
         ]
       ) {
         id
