@@ -7,4 +7,21 @@ import com.example.paymentsv2.robert.filters.IntFilterField
 public data class RobDepartmentFilter(
   public val id: IntFilterField? = null,
   public val name: FilterField? = null,
-) : Filter()
+  public val description: FilterField? = null,
+) : Filter() {
+  public companion object {
+    public fun fromMap(map: LinkedHashMap<String, LinkedHashMap<String, String>>):
+        RobDepartmentFilter {
+      val id = map["id"]?.let { LinkedHashMap(it) }?.let {
+       Filter().createFilterField(it, IntFilterField::class.java, "id") as IntFilterField?
+      }
+      val name = map["name"]?.let { LinkedHashMap(it) }?.let {
+       Filter().createFilterField(it, FilterField::class.java, "name") as FilterField?
+      }
+      val description = map["description"]?.let { LinkedHashMap(it) }?.let {
+       Filter().createFilterField(it, FilterField::class.java, "description") as FilterField?
+      }
+      return RobDepartmentFilter(id, name, description)
+    }
+  }
+}

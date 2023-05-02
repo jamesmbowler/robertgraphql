@@ -1,5 +1,7 @@
+scalar PositiveInt
+
 type Query {
-    rob_departments(filter: [RobDepartmentFilter]) : [Department]
+    rob_departments(filter: [[RobDepartmentFilter]]) : [Department]
     rob_employees(filter: [RobEmployeeFilter]) : [Employee]
     rob_addresses(filter: [RobAddressFilter]): [Address],
     rob_organizations(filter: [RobOrganizationsFilter]): [Organization]
@@ -13,6 +15,7 @@ input DepartmentInput {
 type Department {
     id: ID
     name: String
+    description: String
     employees(filter: [RobEmployeeFilter]): [Employee],
     organizations: [Organization]
 }
@@ -27,6 +30,7 @@ type Organization {
 input RobDepartmentFilter {
     id: IntFilterField
     name: FilterField
+    description: FilterField
 }
 
 input RobOrganizationsFilter {
@@ -50,7 +54,7 @@ enum StringFilters {
 }
 input IntFilterField {
     operator: IntFilters,
-    value: String!,
+    value: PositiveInt!,
     queryOperator: String = "AND"
 }
 

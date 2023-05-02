@@ -29,7 +29,6 @@ class DatafetcherGenerator(
     private val packageName: String,
     private val document: Document
 ) {
-
     fun generate(query: ObjectTypeDefinition): List<Boolean?>? {
         return query.fieldDefinitions.map { field ->
             createDatafetcher(field)
@@ -62,7 +61,7 @@ class DatafetcherGenerator(
         RepositoryGenerator(packageDir, packageName).generateRepository(name, modelType.name)
 
         val repository = ClassName(packageName + ".repositories", name + "Repository")
-        val joinChildren = ClassName(packageName.substringBeforeLast(".") + ".utils", "JoinChildren")
+        val joinChildren = ClassName(packageName.substringBeforeLast(".") + ".robert.utils", "JoinChildren")
         val dataFetchingEnvironment = ClassName("graphql.schema", "DataFetchingEnvironment")
         val specification = ClassName("org.springframework.data.jpa.domain", "Specification")
         val dgsComponent = ClassName("com.netflix.graphql.dgs", "DgsComponent")
