@@ -24,7 +24,7 @@ class RepositoryGenerator(
         val fileSpec = FileSpec.builder(packageName, entityName + "Repository")
             .addType(
                 TypeSpec.interfaceBuilder(repositoryClass)
-                .addSuperinterface(jpaRepository.parameterizedBy(entityClass, ClassName("java.lang", "Long")))
+                .addSuperinterface(jpaRepository.parameterizedBy(entityClass, ClassName("kotlin.Long", "Long")))
                 .addSuperinterface(jpaSpecificationExecutor.parameterizedBy(entityClass))
                 .addAnnotation(repository)
                 .addModifiers(KModifier.PUBLIC)

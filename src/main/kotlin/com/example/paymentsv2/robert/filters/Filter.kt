@@ -1,5 +1,6 @@
 package com.example.paymentsv2.robert.filters
 
+import com.example.paymentsv2.robert.FilterFieldInterface
 import org.springframework.stereotype.Component
 import kotlin.reflect.full.declaredMemberProperties
 
@@ -22,14 +23,17 @@ open class Filter {
             .toMutableList()
     }
 
-    fun createFilterField(filterArguments: Map<String, String>?, fieldType: Class<*>, name: String?): FilterField? {
+    fun createFilterField(filterArguments: Map<String, String>?, fieldType: Class<*>, name: String?): FilterFieldInterface? {
         if (filterArguments != null) {
-            val operator = filterArguments["operator"] as String
-            val value = filterArguments["value"] as String
             val queryOperator = QueryOperator.valueOf((filterArguments["queryOperator"] as String).toUpperCase())
             return when (fieldType) {
-                IntFilterField::class.java -> IntFilterField(value = value, operator = operator, name = name)
-                FilterField::class.java -> FilterField(value = value, operator = operator)
+                IntFilterField::class.java -> IntFilterField(
+                    value = filterArguments["value"]!!.toInt(),
+                    operator = filterArguments["operator"],
+                    name = name)
+                FilterField::class.java -> FilterField(
+                    value = filterArguments["value"],
+                    operator = filterArguments["operator"])
                 else -> null
             }
         }

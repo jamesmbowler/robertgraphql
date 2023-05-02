@@ -1,9 +1,9 @@
 package com.example.paymentsv2.robgen.datafetchers
 
 import com.example.paymentsv2.models.Organization
+import com.example.paymentsv2.robert.utils.JoinChildren
 import com.example.paymentsv2.robgen.filters.RobOrganizationsFilter
 import com.example.paymentsv2.robgen.repositories.Rob_organizationsRepository
-import com.example.paymentsv2.robert.utils.JoinChildren
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
 import com.netflix.graphql.dgs.InputArgument

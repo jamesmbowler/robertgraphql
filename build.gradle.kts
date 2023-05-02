@@ -83,6 +83,9 @@ tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
 	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/rob_schema")
 	packageName = "com.example.paymentsv2.generated" // The package name to use to generate sources
 	generateClient = true // Enable generating the type safe query API
+	typeMapping = mutableMapOf(
+		"PositiveInt" to "kotlin.Int"
+	)
 }
 
 hibernate {

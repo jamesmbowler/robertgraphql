@@ -9,6 +9,9 @@ class Department(
   @Column
   val name: String,
 
+  @Column
+  val description: String,
+
   //@OneToMany(mappedBy = "department")
   @ManyToMany
   val employees: Set<Employee?>? = null,

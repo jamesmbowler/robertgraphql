@@ -3,6 +3,7 @@ package com.example.paymentsv2.robert.utils
 import com.example.paymentsv2.robert.filters.Filter
 import com.example.paymentsv2.robgen.filters.RobAddressFilter
 import com.example.paymentsv2.robgen.filters.RobEmployeeFilter
+import com.example.paymentsv2.robgen.filters.RobOrganizationsFilter
 import graphql.schema.*
 import jakarta.persistence.criteria.*
 import org.springframework.data.jpa.domain.Specification
@@ -49,11 +50,11 @@ class JoinChildren {
         fields: List<SelectedField>,
         filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>>
     ) {
-        for (fi in fields) {
-            if (fi.selectionSet.immediateFields.isNotEmpty()) {
-                val fetch: Fetch<Any, Any> = fetchJoin(f, fi) as Fetch<Any, Any>
-                filters.addAll(filter(fi, fetch as Fetch<Any, Any>))
-                joinsHelper(fetch, fi.selectionSet.immediateFields, filters)
+        for (field in fields) {
+            if (field.selectionSet.immediateFields.isNotEmpty()) {
+                val fetch: Fetch<Any, Any> = fetchJoin(f, field) as Fetch<Any, Any>
+                filters.addAll(filter(field, fetch as Fetch<Any, Any>))
+                joinsHelper(fetch, field.selectionSet.immediateFields, filters)
             }
         }
     }
@@ -74,18 +75,14 @@ class JoinChildren {
     }
 
     fun filter(field: SelectedField, fetch: Fetch<Any, Any>): MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> {
-        val filterClass = getFilterClass(field,
-            field.arguments.entries.firstOrNull { it.key == "filter" } as MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?)
-        val filters: MutableSet<Pair<Join<Any, Any>, MutableList<Filter>>> = mutableSetOf()
+        field.arguments.entries.firstOrNull { it.key == "filter" }?.let {
+            return mutableSetOf(
+                Pair(fetch as Join<Any,Any>,
+                    getFilterClass(field, it as MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?
+            )!!.toMutableList()))
+        }
 
-        if (filterClass == null) return filters
-
-        filters.add(Pair(fetch as Join<Any,Any>, filterClass!!.toMutableList()))
-//        for (a in field.arguments) {
-//            filters.add(Pair(fetch as Join<Any,Any>, filterer.createFilter(a, filterClass)))
-//        }
-
-        return filters
+        return mutableSetOf()
     }
 
     fun parseFilter(fieldDefinition: GraphQLFieldDefinition): GraphQLInputObjectType? {
@@ -135,6 +132,7 @@ class JoinChildren {
             return when (string) {
                 "RobEmployeeFilter" -> filters?.value?.map { RobEmployeeFilter.fromMap(it) }?.toSet() ?: setOf()
                 "RobAddressFilter" -> filters?.value?.map { RobAddressFilter.fromMap(it) }?.toSet() ?: setOf()
+                "RobOrganizationsFilter" -> filters?.value?.map { RobOrganizationsFilter.fromMap(it) }?.toSet() ?: setOf()
                 else -> null
             } ?: throw Exception("No class found for $string")
         } catch (e: Exception ) {
