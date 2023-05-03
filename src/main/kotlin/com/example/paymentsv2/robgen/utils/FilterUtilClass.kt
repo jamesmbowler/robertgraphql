@@ -5,6 +5,11 @@ import com.example.paymentsv2.robgen.filters.RobAddressFilter
 import com.example.paymentsv2.robgen.filters.RobDepartmentFilter
 import com.example.paymentsv2.robgen.filters.RobEmployeeFilter
 import com.example.paymentsv2.robgen.filters.RobOrganizationsFilter
+import java.util.ArrayList
+import java.util.LinkedHashMap
+import kotlin.String
+import kotlin.collections.MutableMap.MutableEntry
+import kotlin.collections.Set
 
 public class FilterUtilClass {
   public fun getType(string: String,

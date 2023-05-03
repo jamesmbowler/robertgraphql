@@ -1,7 +1,7 @@
 package com.example.paymentsv2.robgen.datafetchers
 
 import com.example.paymentsv2.models.Employee
-import com.example.paymentsv2.robert.utils.JoinChildren
+import com.example.paymentsv2.robert.utils.RobQueryBuilder
 import com.example.paymentsv2.robgen.filters.RobEmployeeFilter
 import com.example.paymentsv2.robgen.repositories.Rob_employeesRepository
 import com.netflix.graphql.dgs.DgsComponent
@@ -21,7 +21,7 @@ public class Rob_employeesDataFetcher {
   public fun rob_employees(environment: DataFetchingEnvironment, @InputArgument
       filter: List<RobEmployeeFilter>): List<Employee> {
     val spec:Specification<Employee>? =
-        JoinChildren().fetchChildEntity(environment.selectionSet.immediateFields, filter)
+        RobQueryBuilder().build(environment.selectionSet.immediateFields, filter)
     return repository.findAll(spec!!)
   }
 }
