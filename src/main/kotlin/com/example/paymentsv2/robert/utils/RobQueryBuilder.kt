@@ -8,9 +8,9 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
 
 @Component
-class JoinChildren {
+class RobQueryBuilder {
 
-    fun <T>fetchChildEntity(
+    fun <T>build(
         fields: List<SelectedField>,
         rootFilters: List<Filter>?
     ): Specification<T>? {

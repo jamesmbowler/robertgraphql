@@ -14,7 +14,6 @@ class FilterUtilGenerator(
 ) {
     fun generate() {
         val packageName = basePackage+ ".utils"
-        val filterUtilClass = ClassName(basePackage+ ".utils", "FilterUtils")
 
         val filterPackageName = basePackage+ ".filters"
 
@@ -43,8 +42,7 @@ class FilterUtilGenerator(
             .addParameter("string", String::class)
             .addParameter(parameterSpec)
             .returns(Set::class.asClassName()
-                .parameterizedBy(
-                    filterClass.copy(nullable = true)))
+                .parameterizedBy(filterClass))
             .beginControlFlow("return when (string)")
         val filterClassNames = getFilterClassNames(filterPackageName)
         filterClassNames.forEach { it ->
@@ -75,17 +73,11 @@ class FilterUtilGenerator(
 
     fun getFilterClassNames(packageName: String): List<String> {
         val directoryPath = packageName.replace('.', '/')
-        //val classLoader = Thread.currentThread().contextClassLoader
-        //val directory = classLoader.getResource("file:"+directoryPath)?.path
-        val dir = File("src/main/kotlin/"+ directoryPath)  ?: return emptyList()
-        val filterFiles = dir.listFiles()
-            //{ _, name -> name.endsWith("Filter.kt") }
-                ?: return emptyList()
+        val dir = File("src/main/kotlin/"+ directoryPath)
+        val filterFiles = dir.listFiles() ?: return emptyList()
 
         return filterFiles.map { file ->
             file.nameWithoutExtension
         }
     }
-
-
 }

@@ -63,7 +63,7 @@ class DatafetcherGenerator(
         RepositoryGenerator(packageDir, packageName).generateRepository(name, modelType.name)
 
         val repository = ClassName(packageName + ".repositories", name + "Repository")
-        val joinChildren = ClassName(packageName.substringBeforeLast(".") + ".robert.utils", "JoinChildren")
+        val joinChildren = ClassName(packageName.substringBeforeLast(".") + ".robert.utils", "RobQueryBuilder")
         val dataFetchingEnvironment = ClassName("graphql.schema", "DataFetchingEnvironment")
         val specification = ClassName("org.springframework.data.jpa.domain", "Specification")
         val dgsComponent = ClassName("com.netflix.graphql.dgs", "DgsComponent")
@@ -93,7 +93,7 @@ class DatafetcherGenerator(
                             .build()
                     )
                     .addStatement(
-                        "val spec:%T<%T>? = %T().fetchChildEntity(environment.selectionSet.immediateFields, filter)",
+                        "val spec:%T<%T>? = %T().build(environment.selectionSet.immediateFields, filter)",
                         specification, model, joinChildren
                     )
                     .addStatement("return repository.findAll(spec!!)")
