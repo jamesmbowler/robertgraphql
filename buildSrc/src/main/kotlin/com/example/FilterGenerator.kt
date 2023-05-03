@@ -10,7 +10,6 @@ class FilterGenerator(
     val packageDir: String,
     private val basePackage: String
 ) {
-
     fun generateFromMapFunction(properties: List<PropertySpec>, className: ClassName): FunSpec {
         return FunSpec.builder("fromMap")
             .addModifiers(KModifier.PUBLIC)

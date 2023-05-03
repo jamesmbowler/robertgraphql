@@ -52,7 +52,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("jakarta.annotation:jakarta.annotation-api")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	//implementation("org.jetbrains.kotlin:kotlin-reflect")
 	//developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	//annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

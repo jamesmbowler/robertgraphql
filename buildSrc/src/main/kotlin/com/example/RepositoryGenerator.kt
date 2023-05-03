@@ -29,6 +29,7 @@ class RepositoryGenerator(
                 .addAnnotation(repository)
                 .addModifiers(KModifier.PUBLIC)
                 .build())
+            .addImport("kotlin", "Long")
             .build()
 
         fileSpec.writeTo(File(packageDir))

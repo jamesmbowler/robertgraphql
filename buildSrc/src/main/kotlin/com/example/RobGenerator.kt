@@ -70,11 +70,16 @@ open class RobGenerator : DefaultTask() {
         generateDataFetchers(document, packageName)
     }
 
-    private fun generateDataFetchers(document: Document, packageName: String): List<List<Boolean?>?> {
+    private fun generateDataFetchers(document: Document, packageName: String) {
         val defs = document.definitions
             .filterIsInstance<ObjectTypeDefinition>()
             .filter { it.name == "Query" }
 
-        return defs.map { DatafetcherGenerator("${project.projectDir}/src/main/kotlin", packageName, document).generate(it) }
+        var fetchers = defs.map {
+            DatafetcherGenerator("${project.projectDir}/src/main/kotlin", packageName, document).generate(it)
+        }
+
+
+        FilterUtilGenerator("${project.projectDir}/src/main/kotlin", packageName).generate()
     }
 }

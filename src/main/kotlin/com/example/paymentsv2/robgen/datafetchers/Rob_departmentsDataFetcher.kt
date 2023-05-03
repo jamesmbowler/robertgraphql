@@ -8,8 +8,9 @@ import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
 import com.netflix.graphql.dgs.InputArgument
 import graphql.schema.DataFetchingEnvironment
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jpa.domain.Specification
+import kotlin.collections.List
+import org.springframework.`data`.jpa.domain.Specification
+import org.springframework.beans.factory.`annotation`.Autowired
 
 @DgsComponent
 public class Rob_departmentsDataFetcher {

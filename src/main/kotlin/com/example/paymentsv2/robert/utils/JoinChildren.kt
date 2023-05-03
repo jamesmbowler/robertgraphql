@@ -1,9 +1,7 @@
 package com.example.paymentsv2.robert.utils
 
 import com.example.paymentsv2.robert.filters.Filter
-import com.example.paymentsv2.robgen.filters.RobAddressFilter
-import com.example.paymentsv2.robgen.filters.RobEmployeeFilter
-import com.example.paymentsv2.robgen.filters.RobOrganizationsFilter
+import com.example.paymentsv2.robgen.utils.FilterUtilClass
 import graphql.schema.*
 import jakarta.persistence.criteria.*
 import org.springframework.data.jpa.domain.Specification
@@ -78,7 +76,7 @@ class JoinChildren {
         field.arguments.entries.firstOrNull { it.key == "filter" }?.let {
             return mutableSetOf(
                 Pair(fetch as Join<Any,Any>,
-                    getFilterClass(field, it as MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?
+                    getFilterClass(field, it as MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>
             )!!.toMutableList()))
         }
 
@@ -102,15 +100,15 @@ class JoinChildren {
 
     fun getFilterClass(
         field: SelectedField,
-        arguments: MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?): Set<Filter>?
+        arguments: MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>): Set<Filter>
     {
         for (d in field.fieldDefinitions) {
             val filter = parseFilter(d)
             if (filter != null) {
-                return getType(filter.name, arguments)
+                return FilterUtilClass().getType(filter.name, arguments!!)
             }
         }
-        return null
+        throw Exception("No filter found for ${field.name}")
     }
 
     fun <T> rootFetch(
@@ -125,18 +123,5 @@ class JoinChildren {
         field: SelectedField
     ): Fetch<out Any, out Any>? {
         return fetch.fetch(field.name, JoinType.LEFT)
-    }
-
-    fun getType(string: String, filters: MutableMap.MutableEntry<String, ArrayList<LinkedHashMap<String, LinkedHashMap<String, String>>>>?): Set<Filter>? {
-        try {
-            return when (string) {
-                "RobEmployeeFilter" -> filters?.value?.map { RobEmployeeFilter.fromMap(it) }?.toSet() ?: setOf()
-                "RobAddressFilter" -> filters?.value?.map { RobAddressFilter.fromMap(it) }?.toSet() ?: setOf()
-                "RobOrganizationsFilter" -> filters?.value?.map { RobOrganizationsFilter.fromMap(it) }?.toSet() ?: setOf()
-                else -> null
-            } ?: throw Exception("No class found for $string")
-        } catch (e: Exception ) {
-            throw (e)
-        }
     }
 }

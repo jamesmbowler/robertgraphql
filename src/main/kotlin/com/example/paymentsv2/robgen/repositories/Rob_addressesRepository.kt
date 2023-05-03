@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.stereotype.Repository
 
 @Repository
-interface Rob_addressesRepository : JpaRepository<Address, Long>,
+public interface Rob_addressesRepository : JpaRepository<Address, Long>,
     JpaSpecificationExecutor<Address>

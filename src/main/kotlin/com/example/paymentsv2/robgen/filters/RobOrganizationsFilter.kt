@@ -3,6 +3,8 @@ package com.example.paymentsv2.robgen.filters
 import com.example.paymentsv2.robert.filters.Filter
 import com.example.paymentsv2.robert.filters.FilterField
 import com.example.paymentsv2.robert.filters.IntFilterField
+import java.util.LinkedHashMap
+import kotlin.String
 
 public data class RobOrganizationsFilter(
   public val id: IntFilterField? = null,
