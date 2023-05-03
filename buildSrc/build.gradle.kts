@@ -10,6 +10,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("org.reflections:reflections:0.9.12")
     //implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"))
     implementation("com.squareup:kotlinpoet:1.12.0")
     implementation("com.netflix.graphql.dgs:graphql-dgs")

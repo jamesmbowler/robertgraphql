@@ -58,6 +58,8 @@ class DatafetcherGenerator(
             FilterGenerator(packageDir, packageName).generateFilter(filter)
 
         }
+        //FilterUtilGenerator(packageDir, packageName).generate()
+
         RepositoryGenerator(packageDir, packageName).generateRepository(name, modelType.name)
 
         val repository = ClassName(packageName + ".repositories", name + "Repository")
