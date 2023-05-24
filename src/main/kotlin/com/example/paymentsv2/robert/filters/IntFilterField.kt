@@ -9,22 +9,29 @@ import org.springframework.stereotype.Component
 
 @Component
 data class IntFilterField(
-    val value: Int? = null,
-    var name: String? = null,
+    override val value: Int? = null,
+    override var name: String? = null,
     val operator: String? = null,
     //override val operator: IntFilterOperators? = null,
-    val queryOperator: QueryOperator = QueryOperator.AND
-): FilterFieldInterface {
-    override fun <T> generateCriteriaPredicate(builder: CriteriaBuilder, field: Path<T>): Predicate {
+    override var andOr: AndOrQueryOperator? = AndOrQueryOperator.AND
+): FilterFieldInterface<Int?> {
+
+    override fun <T> generateCriteriaPredicate(
+        builder: CriteriaBuilder,
+        field: Path<T>,
+        andOr: AndOrQueryOperator?
+    ): Predicate {
         val v = value!!.toInt()
-        when (operator) {
-            "lt" -> return builder.lessThan(field as Expression<Int>, v)
-            "le" -> return builder.lessThanOrEqualTo(field as Expression<Int>, v)
-            "gt" -> return builder.greaterThan(field as Expression<Int>, v)
-            "ge" -> return builder.greaterThanOrEqualTo(field as Expression<Int>, v)
-            "eq" -> return builder.equal(field as Expression<Int>, v)
+        val predicate = when (operator) {
+            "lt" -> builder.lessThan(field as Expression<Int>, v)
+            "le" -> builder.lessThanOrEqualTo(field as Expression<Int>, v)
+            "gt" -> builder.greaterThan(field as Expression<Int>, v)
+            "ge" -> builder.greaterThanOrEqualTo(field as Expression<Int>, v)
+            "eq" -> builder.equal(field as Expression<Int>, v)
+            else -> {
+                throw Exception("No criteria")}
         }
 
-        throw Exception("No criteria")
+        return getQueryOperator(builder, predicate, andOr)
     }
 }

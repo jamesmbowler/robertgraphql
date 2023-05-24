@@ -1,10 +1,41 @@
 scalar PositiveInt
+scalar Long
+scalar BigDecimal
 
 type Query {
-    rob_departments(filter: [[RobDepartmentFilter]]) : [Department]
-    rob_employees(filter: [RobEmployeeFilter]) : [Employee]
-    rob_addresses(filter: [RobAddressFilter]): [Address],
-    rob_organizations(filter: [RobOrganizationsFilter]): [Organization]
+    #rob_departments(filter: [DepartmentFilterGroup]) : [Department]
+#    rob_employees(filter: [[RobEmployeeFilter]]) : [Employee]
+#    rob_addresses(filter: [[RobAddressFilter]]): [Address]
+#    rob_organizations(filter: [[RobOrganizationsFilter]]): [Organization]
+    rob_clubs(filter: [ClubsFilterGroup]): [Clubs]
+    rob_venues(filter: [VenuesFilterGroup]): [Venues]
+    rob_orders(filter: [OrdersFilterGroup]): [Orders]
+    me: User
+}
+
+type Mutation {
+    createOrder(order: [OrderItemInput]): Orders
+    createMenuItem(menuItem: [MenuItemInput]): MenuItems
+    updateSoldOut(menuItemId: Long, soldOut: Boolean): MenuItems
+}
+
+input OrderItemInput {
+    comments: String,
+    menuItemId: Long,
+}
+
+input MenuItemInput {
+    menuId: Long,
+    isActive: Boolean,
+    soldOut: Boolean,
+    name: String,
+    description: String,
+    price: BigDecimal
+}
+
+input DepartmentFilterGroup {
+    filter: [RobDepartmentFilter]
+    operator: String = "AND"
 }
 
 input DepartmentInput {
@@ -19,6 +50,87 @@ type Department {
     employees(filter: [RobEmployeeFilter]): [Employee],
     organizations: [Organization]
 }
+type User {
+    id: ID,
+    name: String,
+    roles: [Roles]
+}
+type Roles {
+    id: ID,
+    name: String
+}
+
+type Clubs {
+    id: ID
+    name: String
+    description: String
+    venues: [Venues]
+}
+
+input ClubsFilter {
+    id: IntFilterField
+    name: FilterField
+}
+
+input VenuesFilter {
+    id: IntFilterField
+    name: FilterField
+}
+
+input ClubsFilterGroup {
+    filter: [ClubsFilter]
+    operator: String = "AND"
+}
+
+input VenuesFilterGroup {
+    filter: [VenuesFilter]
+    operator: String = "AND"
+}
+
+input OrdersFilter {
+    id: IntFilterField
+    name: FilterField
+}
+
+input OrdersFilterGroup {
+    filter: [OrdersFilter]
+    operator: String = "AND"
+}
+
+type Venues {
+    id: ID
+    name: String
+    description: String
+    menus: [Menus]
+}
+
+type Menus {
+    id: ID
+    name: String
+    description: String
+    menuItems: [MenuItems]
+}
+
+type MenuItems {
+    id: ID
+    name: String
+    description: String
+    price: String
+    isActive: Boolean
+    soldOut: Boolean
+}
+
+type OrderItems {
+    id: ID
+    menuItemId: Long
+    menuItem: MenuItems
+}
+
+type Orders {
+    id: ID
+    total: Float
+    items: [OrderItems]
+}
 
 type Organization {
     id: ID
@@ -30,7 +142,7 @@ type Organization {
 input RobDepartmentFilter {
     id: IntFilterField
     name: FilterField
-    description: FilterField
+    description: FilterField,
 }
 
 input RobOrganizationsFilter {
@@ -55,13 +167,13 @@ enum StringFilters {
 input IntFilterField {
     operator: IntFilters,
     value: PositiveInt!,
-    queryOperator: String = "AND"
+    andOr: String = "AND"
 }
 
 input FilterField {
     operator: StringFilters,
     value: String!,
-    queryOperator: String = "AND"
+    andOr: String = "AND"
 }
 
 type Employee {

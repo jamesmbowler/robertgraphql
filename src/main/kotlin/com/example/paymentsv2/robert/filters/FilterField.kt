@@ -9,19 +9,24 @@ import org.springframework.stereotype.Component
 
 @Component
 data class FilterField(
-    var name: String? = null,
-    val operator: String? = null,
-    val value: String? = null,
-    val queryOperator: QueryOperator = QueryOperator.AND,
-    var type: Class<*> = String::class.java
-): FilterFieldInterface {
-    override fun <T> generateCriteriaPredicate(builder: CriteriaBuilder, field: Path<T>): Predicate {
-        when (operator) {
-            "eq" -> return builder.equal(field, value)
-            "endsWith" -> return builder.like(field as Expression<String>, "%$value")
-            "startsWith" -> return builder.like(field as Expression<String>, "$value%")
-            "contains" -> return builder.like(field as Expression<String>, "%$value%")
+    override var name: String? = null,
+    override val value: String? = null,
+    var operator: String? = null,
+    override var andOr: AndOrQueryOperator? = AndOrQueryOperator.AND
+): FilterFieldInterface<String?> {
+    override fun <T> generateCriteriaPredicate(
+        builder: CriteriaBuilder,
+        field: Path<T>,
+        andOr: AndOrQueryOperator?
+    ): Predicate {
+        val predicate = when (operator) {
+            "eq" -> builder.equal(field, value)
+            "endsWith" -> builder.like(field as Expression<String>, "%$value")
+            "startsWith" -> builder.like(field as Expression<String>, "$value%")
+            "contains" -> builder.like(field as Expression<String>, "%$value%")
+            else -> {
+                throw Exception("No criteria")}
         }
-        throw Exception("No criteria")
+        return getQueryOperator(builder, predicate, andOr)
     }
 }
