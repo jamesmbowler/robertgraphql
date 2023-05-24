@@ -48,7 +48,7 @@ class FilterUtilGenerator(
         filterClassNames.forEach { it ->
             val filterClassName = ClassName(filterPackageName, it)
             getTypeFunSpec.addStatement(
-                "\"$it\" -> filters?.value?.map { ${filterClassName.simpleName}.fromMap(it) }?.toSet() ?: setOf()"
+                "\"$it\" -> filters.value?.map { ${filterClassName.simpleName}.fromMap(it) }?.toSet() ?: setOf()"
             )
         }
 

@@ -1,0 +1,8 @@
+package com.example.paymentsv2.repositories
+
+import com.example.paymentsv2.models.User
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface UserRepository : JpaRepository<User?, Long?> {
+    fun findByEmail(email: String?): User?
+}

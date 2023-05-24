@@ -6,34 +6,41 @@ import kotlin.reflect.full.declaredMemberProperties
 
 @Component
 open class Filter {
-    fun getFilters(): MutableList<FilterField> {
+    companion object {
+        val fields = listOf<String>()
+    }
+    fun getFilters(): MutableList<FilterFieldInterface<*>> {
         return this.javaClass.kotlin.declaredMemberProperties
             .filter { property ->
                 val value = property.get(this)
-                (value is FilterField) && (value.value != null)
+                (value is FilterFieldInterface<*>) && (value.value != null)
             }
             .map { property ->
                 val value = property.get(this)
-                if (value is FilterField) {
+                if (value is FilterFieldInterface<*>) {
                     value.name = property.name
                 }
                 value
             }
-            .filterIsInstance<FilterField>()
+            .filterIsInstance<FilterFieldInterface<*>>()
             .toMutableList()
     }
 
-    fun createFilterField(filterArguments: Map<String, String>?, fieldType: Class<*>, name: String?): FilterFieldInterface? {
+    fun createFilterField(filterArguments: Map<String, String>?, fieldType: Class<*>, name: String?): FilterFieldInterface<*>? {
         if (filterArguments != null) {
-            val queryOperator = QueryOperator.valueOf((filterArguments["queryOperator"] as String).toUpperCase())
+            val queryOperator = AndOrQueryOperator.valueOf((filterArguments["andOr"] as String).uppercase())
             return when (fieldType) {
                 IntFilterField::class.java -> IntFilterField(
                     value = filterArguments["value"]!!.toInt(),
                     operator = filterArguments["operator"],
-                    name = name)
+                    name = name,
+                    andOr = queryOperator
+                )
                 FilterField::class.java -> FilterField(
                     value = filterArguments["value"],
-                    operator = filterArguments["operator"])
+                    operator = filterArguments["operator"],
+                    andOr = queryOperator
+                )
                 else -> null
             }
         }

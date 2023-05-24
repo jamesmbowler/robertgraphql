@@ -45,13 +45,19 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars")
 	implementation("com.graphql-java:graphql-java:19.2")
+	implementation("org.springframework.session:spring-session-jdbc")
 
 	//implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	//implementation("org.springframework.boot:spring-boot-starter-graphql")
-	//implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("jakarta.annotation:jakarta.annotation-api")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib")
+	implementation("io.hypersistence:hypersistence-utils-hibernate-62:3.3.2")
+	implementation("com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations")
 	//implementation("org.jetbrains.kotlin:kotlin-reflect")
 	//developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.mysql:mysql-connector-j")
@@ -82,10 +88,13 @@ tasks.withType<Test> {
 tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
 	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/rob_schema")
 	packageName = "com.example.paymentsv2.generated" // The package name to use to generate sources
-	generateClient = true // Enable generating the type safe query API
+	generateClient = false // Enable generating the type safe query API
 	typeMapping = mutableMapOf(
-		"PositiveInt" to "kotlin.Int"
+		"PositiveInt" to "kotlin.Int",
+		"Long" to "kotlin.Long",
+		"BigDecimal" to "java.math.BigDecimal"
 	)
+	maxProjectionDepth = 10
 }
 
 hibernate {

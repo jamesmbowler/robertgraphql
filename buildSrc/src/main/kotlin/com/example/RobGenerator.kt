@@ -79,7 +79,6 @@ open class RobGenerator : DefaultTask() {
             DatafetcherGenerator("${project.projectDir}/src/main/kotlin", packageName, document).generate(it)
         }
 
-
         FilterUtilGenerator("${project.projectDir}/src/main/kotlin", packageName).generate()
     }
 }
