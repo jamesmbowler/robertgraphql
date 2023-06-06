@@ -1,5 +1,6 @@
 package com.example.paymentsv2.models
 
+import com.example.paymentsv2.robert.utils.OrderStatus
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
@@ -11,6 +12,9 @@ class Orders(
    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
    var id: Long?,
    var isActive: Boolean? = null,
+
+   @Enumerated(EnumType.STRING)
+   var status: OrderStatus? = null,
    var name: String? = null,
    @ManyToOne
    var user: User? = null,
@@ -23,6 +27,4 @@ class Orders(
 
    @UpdateTimestamp
    val updatedOn: Instant? = null,
-
-
-   )
+)

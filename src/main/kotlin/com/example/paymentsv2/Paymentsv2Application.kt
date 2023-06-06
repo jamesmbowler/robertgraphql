@@ -24,5 +24,6 @@ class Paymentsv2Application
 //}
 
 fun main(args: Array<String>) {
+
 	runApplication<Paymentsv2Application>(*args)
 }

@@ -15,8 +15,13 @@ type Query {
 
 type Mutation {
     createOrder(order: [OrderItemInput]): Orders
+    updateOrder(orderId: Long, status: OrderStatus): Orders
     createMenuItem(menuItem: [MenuItemInput]): MenuItems
     updateSoldOut(menuItemId: Long, soldOut: Boolean): MenuItems
+}
+
+enum OrderStatus {
+    READY
 }
 
 input OrderItemInput {
