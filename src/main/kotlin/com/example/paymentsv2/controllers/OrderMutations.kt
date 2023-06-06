@@ -55,7 +55,7 @@ class OrderMutations @Autowired constructor(
             .orElseThrow { throw IllegalArgumentException("Menu item not found with ID: $orderId") }
 
         order?.status = status
-        val phoneId = "eNh56KquSHu_Xf6mZfzOBk:APA91bEoIB4A1rVurvDQhv1spDTeGLbtEU6NCpyieFWlpEdzegXgQH1u4fyzdT3rwdfB4elSEokAkdQAI96MNP4gK6lAHLZllqzo9hlLOX9xSybSce6oSGE6XHERpFOK4dd3ICt-oOqE"
+        val phoneId = "dTySCQ2BSEikWdjfEnJEoD:APA91bHYRPK9erbaNea9KEt8lcR8Z-gdm_4W-PUwf57c4vIbxSNBU7PI8Ip-isSJ7SXhlS1VA1DJWyVTQg_Kj8FOqgCdpBpD12WJ5eu-8BvD987H4Jt7I05nUXG7Sf3uNr6u9Q61isg9"
         val eId = "frT6IWvRRkyx1DpdZTLyow:APA91bH9YeZ7at55x0krQPMFIH8T-eVYnwbLo4ZnHkwgIaw1RqWuMd33YPVf856cHYBybrddYZFE_1szrMIxqeYkZfcYQqJH5zSXNHabXe0NgL10fW7JlbgnPE3TZOQDJ0-qGGE4JAJv"
         //notificationService.sendNotification(eId)
         notificationService.sendNotification(phoneId)
