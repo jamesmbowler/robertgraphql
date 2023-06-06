@@ -105,8 +105,3 @@ tasks.withType<RobGenerator> {
 	outputs.upToDateWhen { false }
 }
 
-sourceSets {
-	main {
-		resources.srcDirs("src/main/resources")
-	}
-}
