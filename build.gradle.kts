@@ -47,10 +47,14 @@ dependencies {
 	implementation("com.graphql-java:graphql-java:19.2")
 	implementation("org.springframework.session:spring-session-jdbc")
 
-	//implementation("org.springframework.boot:spring-boot-starter-data-rest")
-	//implementation("org.springframework.boot:spring-boot-starter-graphql")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
+	implementation("org.thymeleaf:thymeleaf-spring6:3.1.1.RELEASE")
+	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.1.RELEASE")
+
+	implementation("com.google.firebase:firebase-admin:9.1.1")
+
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -58,12 +62,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib")
 	implementation("io.hypersistence:hypersistence-utils-hibernate-62:3.3.2")
 	implementation("com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations")
-	//implementation("org.jetbrains.kotlin:kotlin-reflect")
-	//developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.mysql:mysql-connector-j")
-	//annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	//testImplementation("org.springframework.boot:spring-boot-starter-test")
-	//testImplementation("org.springframework:spring-webflux")
 	testImplementation("org.springframework.graphql:spring-graphql-test")
 	//implementation(gradleApi())
 }
@@ -104,4 +103,10 @@ tasks.withType<RobGenerator> {
 	schemaPaths = mutableListOf<Any>("${projectDir}/src/main/resources/rob_schema")
 	packageName = "com.example.paymentsv2.robgen"
 	outputs.upToDateWhen { false }
+}
+
+sourceSets {
+	main {
+		resources.srcDirs("src/main/resources")
+	}
 }

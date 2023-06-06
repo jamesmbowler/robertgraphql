@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -27,17 +29,29 @@ import org.springframework.stereotype.Component
 
 
 @Configuration
+@Order(1)
 @EnableWebSecurity
-class SpringSecurity @Autowired constructor(
-    val queryService: QueryService,
-    val userRepository: UserRepository
-) {
+class SpringSecurity {
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
     @Autowired
     private val userDetailsService: UserDetailsService? = null
+
+    @Bean
+    @Throws(java.lang.Exception::class)
+    fun authenticationManager(http: HttpSecurity): AuthenticationManager? {
+        return http.getSharedObject(AuthenticationManagerBuilder::class.java)
+            .build()
+    }
+//    @Bean
+//    @Primary
+//    @Throws(java.lang.Exception::class)
+//    fun authManagerBuilder(@Autowired auth: AuthenticationManagerBuilder): AuthenticationManagerBuilder? {
+//        auth.userDetailsService<UserDetailsService>(userDetailsService).passwordEncoder(passwordEncoder())
+//        return auth
+//    }
 
     @Bean
     @Throws(Exception::class)
@@ -51,9 +65,11 @@ class SpringSecurity @Autowired constructor(
                     .requestMatchers("/test/**").permitAll()
                     .requestMatchers("/graphql").permitAll()
                     .requestMatchers("/index").permitAll()
+                    .requestMatchers("/login").permitAll()
+                    //.requestMatchers("/login_m").permitAll()
                     .requestMatchers("/venues").permitAll()
                     .requestMatchers("/order").permitAll()
-                    .requestMatchers("/users").hasRole("ADMIN")
+                    //.requestMatchers("/users").hasRole("ADMIN")
             }
             //.addFilterBefore(JsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .formLogin { form ->
@@ -61,20 +77,6 @@ class SpringSecurity @Autowired constructor(
                     .loginPage("/login")
                     .loginProcessingUrl("/login")
                     .defaultSuccessUrl("/users")
-                    .permitAll()
-            }
-            .formLogin { form ->
-                form
-                    //.loginPage("/login_m")
-                    .loginProcessingUrl("/login_m")
-                    .defaultSuccessUrl("/")
-                    .successHandler(CustomAuthenticationSuccessHandler(
-                        objectMapper,
-                        userDetailsService!!,
-                        queryService,
-                        userRepository
-                    ))
-                    .failureHandler(CustomAuthenticationFailureHandler())
                     .permitAll()
             }
             //.addFilterAt(jsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
@@ -86,18 +88,6 @@ class SpringSecurity @Autowired constructor(
         return http.build()
     }
 
-//    fun jsonAuthenticationFilter(): AuthenticationFilter {
-//        val filter = UsernamePasswordAuthenticationFilter()
-//        //filter.setAuthenticationManager(authenticationManagerBean(AuthenticationManagerBuilder())
-//        filter.setAuthenticationSuccessHandler(CustomAuthenticationSuccessHandler(objectMapper, userDetailsService!!))
-//        filter.setFilterProcessesUrl("/login_m")
-//        filter.setPostOnly(true)
-//        filter.setUsernameParameter("username")
-//        filter.setPasswordParameter("password")
-//        filter.setAuthenticationConverter(JsonAuthenticationConverter(objectMapper))
-//        return filter
-//    }
-
     @Autowired
     @Throws(Exception::class)
     fun configureGlobal(auth: AuthenticationManagerBuilder) {
@@ -106,11 +96,60 @@ class SpringSecurity @Autowired constructor(
             .passwordEncoder(passwordEncoder())
     }
 
+
     companion object {
         @Bean
         fun passwordEncoder(): PasswordEncoder {
             return BCryptPasswordEncoder()
         }
+    }
+}
+
+@Configuration
+@Order(2)
+class AppSpringSecurity @Autowired constructor(
+    val queryService: QueryService,
+    val userRepository: UserRepository
+) {
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
+
+    @Autowired
+    private val userDetailsService: UserDetailsService? = null
+
+    @Bean
+    @Throws(Exception::class)
+    fun filterChainApp(http: HttpSecurity): SecurityFilterChain {
+        http
+            .csrf().disable()
+            .authorizeHttpRequests{ authorize ->
+                authorize.requestMatchers("/register/**").permitAll()
+                    .requestMatchers("/graphiql/**").permitAll()
+                    .requestMatchers("/graphql/**").permitAll()
+                    .requestMatchers("/test/**").permitAll()
+                    //.requestMatchers("/graphql").permitAll()
+                    //.requestMatchers("/index").permitAll()
+                    //.requestMatchers("/login").permitAll()
+                    .requestMatchers("/login_m").permitAll()
+                    .requestMatchers("/venues").permitAll()
+                    .requestMatchers("/order").permitAll()
+                //.requestMatchers("/users").hasRole("ADMIN")
+            }
+            .formLogin { form ->
+                form
+                    .loginProcessingUrl("/login_m")
+                    .defaultSuccessUrl("/")
+                    .successHandler(CustomAuthenticationSuccessHandler(
+                        objectMapper,
+                        userDetailsService!!,
+                        queryService,
+                        userRepository
+                    ))
+                    .failureHandler(CustomAuthenticationFailureHandler())
+                    .permitAll()
+            }
+        return http.build()
     }
 }
 
