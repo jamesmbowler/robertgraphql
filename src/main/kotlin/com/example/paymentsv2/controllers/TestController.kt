@@ -30,6 +30,7 @@ class TestController(
 //        return linkedHashMapToString(executionResult.getData<LinkedHashMap<*,*>>())
 //    }
 
+
     @GetMapping("venues")
     fun venues(): ArrayList<LinkedHashMap<Any, Any>> {
         return queryService.venuesQuery()?.getData<LinkedHashMap<*,*>>()?.get(Rob_venuesGraphQLQuery().getOperationName()) as ArrayList<LinkedHashMap<Any,Any>>
