@@ -19,6 +19,13 @@ class User (
     @Column(nullable = false)
     var password: String? = null,
 
+    //for sending push notifications
+    @Column(nullable = true)
+    var fcmToken: String? = "",
+
+    @OneToMany(mappedBy = "user")
+    var orders: List<Orders> = ArrayList(),
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinTable(
         name = "users_roles",

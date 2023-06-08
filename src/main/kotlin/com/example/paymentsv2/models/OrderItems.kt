@@ -15,8 +15,11 @@ class OrderItems(
    @ManyToMany(mappedBy = "items")
    val orders: List<Orders>? = null,
 
-   @Column(columnDefinition = "json")
+   @Column(name = "menu_item", columnDefinition = "json")
    @Type(JsonType::class)
    var menuItem: MenuItemOrdered? = null,
+
+//   @Column(name = "menu_item", insertable = false, updatable = false)
+//   var menuItemString: String? = null,
 
 )

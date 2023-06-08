@@ -2,10 +2,7 @@ package com.example.paymentsv2.service
 
 import com.example.paymentsv2.dtos.LoginResponse
 import com.example.paymentsv2.dtos.UserDto
-import com.example.paymentsv2.generated.client.CreateOrderGraphQLQuery
-import com.example.paymentsv2.generated.client.CreateOrderProjectionRoot
-import com.example.paymentsv2.generated.client.Rob_venuesGraphQLQuery
-import com.example.paymentsv2.generated.client.Rob_venuesProjectionRoot
+import com.example.paymentsv2.generated.client.*
 import com.example.paymentsv2.generated.types.OrderItemInput
 import com.example.paymentsv2.models.Orders
 import com.netflix.graphql.dgs.DgsQueryExecutor
@@ -55,5 +52,20 @@ class QueryService {
 
         val data = executionResult.getData<Map<String, Any>>()?.get(CreateOrderGraphQLQuery().getOperationName()) as? Map<String, Any>
         return Orders( data?.get("id") as? Long)
+    }
+
+    fun myOrdersQuery(userId: Long): ArrayList<LinkedHashMap<Any, Any>> {
+        val gql = GraphQLQueryRequest(
+            MyordersGraphQLQuery.Builder().userId(userId)
+                .build(),
+            MyordersProjectionRoot().id().total()
+                .items().id().menuItem()
+        ).serialize()
+
+        val executionResult = dgsQueryExecutor.execute(gql)
+
+        val data = executionResult.getData<LinkedHashMap<*,*>>()?.get(MyordersGraphQLQuery().getOperationName()) as ArrayList<LinkedHashMap<Any,Any>>
+        //val data = executionResult.getData<Map<String, Any>>()?.get(CreateOrderGraphQLQuery().getOperationName()) as? Map<String, Any>
+        return data
     }
 }

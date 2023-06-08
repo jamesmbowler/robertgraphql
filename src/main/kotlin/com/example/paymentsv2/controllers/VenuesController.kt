@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-class TestController(
+class VenuesController(
     @Autowired val queryService: QueryService
 ) {
 
@@ -34,23 +34,5 @@ class TestController(
     @GetMapping("venues")
     fun venues(): ArrayList<LinkedHashMap<Any, Any>> {
         return queryService.venuesQuery()?.getData<LinkedHashMap<*,*>>()?.get(Rob_venuesGraphQLQuery().getOperationName()) as ArrayList<LinkedHashMap<Any,Any>>
-    }
-
-    fun linkedHashMapToString(map: LinkedHashMap<*, *>): String {
-        val sb = StringBuilder("{")
-        for ((key, value) in map) {
-            sb.append("\"$key\": ")
-            if (value is LinkedHashMap<*, *>) {
-                sb.append(linkedHashMapToString(value))
-            } else {
-                sb.append("\"$value\"")
-            }
-            sb.append(", ")
-        }
-        if (sb.length > 1) {
-            sb.setLength(sb.length - 2)
-        }
-        sb.append("}")
-        return sb.toString()
     }
 }

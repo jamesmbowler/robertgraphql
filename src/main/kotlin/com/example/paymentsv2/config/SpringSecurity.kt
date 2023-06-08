@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.stereotype.Component
 
@@ -31,7 +32,10 @@ import org.springframework.stereotype.Component
 @Configuration
 @Order(1)
 @EnableWebSecurity
-class SpringSecurity {
+class SpringSecurity @Autowired constructor(
+    val queryService: QueryService,
+    val userRepository: UserRepository
+)  {
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
@@ -45,31 +49,25 @@ class SpringSecurity {
         return http.getSharedObject(AuthenticationManagerBuilder::class.java)
             .build()
     }
-//    @Bean
-//    @Primary
-//    @Throws(java.lang.Exception::class)
-//    fun authManagerBuilder(@Autowired auth: AuthenticationManagerBuilder): AuthenticationManagerBuilder? {
-//        auth.userDetailsService<UserDetailsService>(userDetailsService).passwordEncoder(passwordEncoder())
-//        return auth
-//    }
 
     @Bean
+    @Order(1)
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf().disable()
             .authorizeHttpRequests { authorize ->
                 authorize.requestMatchers("/register/**").permitAll()
-                    .requestMatchers("/graphiql/**").permitAll()
-                    .requestMatchers("/graphql/**").permitAll()
-                    .requestMatchers("/test/**").permitAll()
-                    .requestMatchers("/graphql").permitAll()
-                    .requestMatchers("/index").permitAll()
-                    .requestMatchers("/login").permitAll()
-                    //.requestMatchers("/login_m").permitAll()
                     .requestMatchers("/venues").permitAll()
                     .requestMatchers("/order").permitAll()
-                    //.requestMatchers("/users").hasRole("ADMIN")
+                    //.requestMatchers("/graphiql").permitAll()
+                    .requestMatchers("/graphql").permitAll()
+                    .requestMatchers("/index").permitAll()
+                    .requestMatchers("/login/**").permitAll()
+                //authorize.requestMatchers("/graphql/**").hasRole("ADMIN")
+                authorize.requestMatchers("/graphiql/**").hasRole("ADMIN")
+                authorize.requestMatchers("/order/**").hasRole("ADMIN")
+                authorize.requestMatchers("/users").hasRole("ADMIN")
             }
             //.addFilterBefore(JsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .formLogin { form ->
@@ -77,69 +75,6 @@ class SpringSecurity {
                     .loginPage("/login")
                     .loginProcessingUrl("/login")
                     .defaultSuccessUrl("/users")
-                    .permitAll()
-            }
-            //.addFilterAt(jsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
-            .logout { logout ->
-                logout
-                    .logoutRequestMatcher(AntPathRequestMatcher("/logout"))
-                    .permitAll()
-            }
-        return http.build()
-    }
-
-    @Autowired
-    @Throws(Exception::class)
-    fun configureGlobal(auth: AuthenticationManagerBuilder) {
-        auth
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(passwordEncoder())
-    }
-
-
-    companion object {
-        @Bean
-        fun passwordEncoder(): PasswordEncoder {
-            return BCryptPasswordEncoder()
-        }
-    }
-}
-
-@Configuration
-@Order(2)
-class AppSpringSecurity @Autowired constructor(
-    val queryService: QueryService,
-    val userRepository: UserRepository
-) {
-
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
-
-    @Autowired
-    private val userDetailsService: UserDetailsService? = null
-
-    @Bean
-    @Throws(Exception::class)
-    fun filterChainApp(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf().disable()
-            .authorizeHttpRequests{ authorize ->
-                authorize.requestMatchers("/register/**").permitAll()
-                    .requestMatchers("/graphiql/**").permitAll()
-                    .requestMatchers("/graphql/**").permitAll()
-                    .requestMatchers("/test/**").permitAll()
-                    //.requestMatchers("/graphql").permitAll()
-                    //.requestMatchers("/index").permitAll()
-                    //.requestMatchers("/login").permitAll()
-                    .requestMatchers("/login_m").permitAll()
-                    .requestMatchers("/venues").permitAll()
-                    .requestMatchers("/order").permitAll()
-                //.requestMatchers("/users").hasRole("ADMIN")
-            }
-            .formLogin { form ->
-                form
-                    .loginProcessingUrl("/login_m")
-                    .defaultSuccessUrl("/")
                     .successHandler(CustomAuthenticationSuccessHandler(
                         objectMapper,
                         userDetailsService!!,
@@ -149,7 +84,79 @@ class AppSpringSecurity @Autowired constructor(
                     .failureHandler(CustomAuthenticationFailureHandler())
                     .permitAll()
             }
+//            .rememberMe { rememberMe ->
+//                rememberMe
+//                    .key("uniqueAndSecret")
+//                    .tokenValiditySeconds(15770000)
+//                    //.rememberMeCookieName("yourRememberMeCookie")
+//                    .rememberMeServices(tokenBasedRememberMeServices())
+//            }
+            //.addFilterAt(jsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+            .logout { logout ->
+                logout
+                    .logoutRequestMatcher(AntPathRequestMatcher("/logout"))
+                    .permitAll()
+            }
+//            .exceptionHandling { exceptionHandling ->
+//                exceptionHandling.accessDeniedHandler {
+//                        request: HttpServletRequest,
+//                        response: HttpServletResponse,
+//                        accessDeniedException: org.springframework.security.access.AccessDeniedException ->
+//                    response.status = HttpStatus.FORBIDDEN.value()
+//                    response.contentType = MediaType.APPLICATION_JSON_VALUE
+//                    response.writer.write(
+//                        objectMapper.writeValueAsString(
+//                            mapOf(
+//                                "error" to "Forbidden",
+//                                "message" to "You don't have permission to access this page"
+//                            )
+//                        )
+//                    )
+//                }
+            //}
         return http.build()
+    }
+
+    fun tokenBasedRememberMeServices(): TokenBasedRememberMeServices? {
+        val rememberMeServices = TokenBasedRememberMeServices("yourRememberMeKey", userDetailsService)
+        rememberMeServices.setAlwaysRemember(true)
+        return rememberMeServices
+    }
+
+//    @Bean
+//    @Order(2)
+//    @Throws(Exception::class)
+//    fun filterChainApp(http: HttpSecurity): SecurityFilterChain {
+//        http
+//            .csrf().disable()
+//            .formLogin { form ->
+//                form
+//                    .loginProcessingUrl("/login_m")
+//                    .defaultSuccessUrl("/")
+//                    .successHandler(CustomAuthenticationSuccessHandler(
+//                        objectMapper,
+//                        userDetailsService!!,
+//                        queryService,
+//                        userRepository
+//                    ))
+//                    .failureHandler(CustomAuthenticationFailureHandler())
+//            }
+//        return http.build()
+//    }
+
+    @Autowired
+    @Throws(Exception::class)
+    fun configureGlobal(auth: AuthenticationManagerBuilder) {
+        auth
+            .userDetailsService(userDetailsService)
+            .passwordEncoder(passwordEncoder())
+    }
+
+    companion object {
+        @Bean
+        fun passwordEncoder(): PasswordEncoder {
+            return BCryptPasswordEncoder()
+        }
     }
 }
 
@@ -161,21 +168,40 @@ class CustomAuthenticationSuccessHandler(
     val userRepository: UserRepository,
 ) : AuthenticationSuccessHandler {
 
-    var logger: org.slf4j.Logger? = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler::class.java)
+    var logger: org.slf4j.Logger = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler::class.java)
 
     override fun onAuthenticationSuccess(
-        request: HttpServletRequest?,
-        response: HttpServletResponse?,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
         authentication: Authentication?
     ) {
-        response?.contentType = MediaType.APPLICATION_JSON_VALUE
-        response?.status = HttpServletResponse.SC_OK
+        if (request.getHeader("X-App-Header").isNullOrEmpty()) {
+            return response.sendRedirect("/users")
+        }
+        val fcmToken = request.getParameter("fcmToken")
+
+        response.contentType = MediaType.APPLICATION_JSON_VALUE
+        response.status = HttpServletResponse.SC_OK
+
+        val user = userRepository.findByEmail(authentication?.name)
+
+        if (user != null) {
+            user.fcmToken = fcmToken
+            userRepository.save(user)
+        }
+//        val session = request.session
+//        val sessionToken = session.id
+
+        // Add the session token to the response
+
+        // Add the session token to the response
+       // response.addHeader("Cookie", sessionToken)
 
         //val jsonResponse = "{\"message\": \"Login Succeeded\"}"
-        logger?.info("Login Succeeded")
-        response?.writer?.write(
+        //logger?.info("Login Succeeded")
+        response.writer?.write(
             queryService.loginQuery(
-                userRepository.findByEmail(authentication?.name)?.toDto()
+                user?.toDto()
             ))
     }
 }

@@ -18,6 +18,10 @@ class Orders(
    var name: String? = null,
    @ManyToOne
    var user: User? = null,
+
+   @Column(name = "user_id", insertable = false, updatable = false)
+   var userId: Long? = null,
+
    var total: BigDecimal? = null,
    @ManyToMany(cascade = [CascadeType.ALL])
    @JoinTable(name = "orders_items")

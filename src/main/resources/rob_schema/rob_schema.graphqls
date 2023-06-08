@@ -11,6 +11,7 @@ type Query {
     rob_venues(filter: [VenuesFilterGroup]): [Venues]
     rob_orders(filter: [OrdersFilterGroup]): [Orders]
     me: User
+    myorders: [Orders]
 }
 
 type Mutation {
@@ -38,23 +39,6 @@ input MenuItemInput {
     price: BigDecimal
 }
 
-input DepartmentFilterGroup {
-    filter: [RobDepartmentFilter]
-    operator: String = "AND"
-}
-
-input DepartmentInput {
-    name: String!
-    organizationId: Int
-}
-
-type Department {
-    id: ID
-    name: String
-    description: String
-    employees(filter: [RobEmployeeFilter]): [Employee],
-    organizations: [Organization]
-}
 type User {
     id: ID,
     name: String,
@@ -129,6 +113,7 @@ type OrderItems {
     id: ID
     menuItemId: Long
     menuItem: MenuItems
+    menuItemString: String
 }
 
 type Orders {
@@ -137,12 +122,6 @@ type Orders {
     items: [OrderItems]
 }
 
-type Organization {
-    id: ID
-    name: String
-    isActive: Boolean
-    departments: [Department]
-}
 
 input RobDepartmentFilter {
     id: IntFilterField
@@ -179,32 +158,4 @@ input FilterField {
     operator: StringFilters,
     value: String!,
     andOr: String = "AND"
-}
-
-type Employee {
-    id: ID!
-    firstName: String!
-    lastName: String!
-    position: String!
-    salary: Int
-    age: Int
-    departments: [Department],
-    addresses(filter: [RobAddressFilter]): [Address]
-}
-
-input RobEmployeeFilter {
-    id: IntFilterField
-    firstName: FilterField
-}
-
-input RobAddressFilter {
-    id: IntFilterField
-    street: FilterField
-}
-
-type Address {
-    id: ID!
-    isActive: Boolean
-    street: String!
-    employees: [Employee]
 }

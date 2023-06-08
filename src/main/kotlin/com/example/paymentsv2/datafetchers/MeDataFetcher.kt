@@ -5,8 +5,7 @@ import com.example.paymentsv2.repositories.UserRepository
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.repository.findByIdOrNull
-import org.springframework.security.access.annotation.Secured
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 
@@ -16,10 +15,10 @@ public class MeDataFetcher {
     public lateinit var repository: UserRepository
 
     @DgsQuery
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public fun me(
         @AuthenticationPrincipal userDetails: UserDetails
     ): User? {
-        return repository.findByIdOrNull(1)
+        return repository.findByEmail(userDetails.username)
     }
 }

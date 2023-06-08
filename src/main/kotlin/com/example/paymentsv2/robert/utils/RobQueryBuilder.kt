@@ -30,17 +30,17 @@ class RobQueryBuilder {
 //                    }
 //                }
 //            }
-//            rootFilters?.forEach { filterGroup ->
-//                filterGroup.filter as List<Filter>
-//                filterGroup.filter?.forEach {
-//                    for (field in it.getFilters()) {
-//                        predicates.add(
-//                            field.addCondition(criteriaBuilder, root.get(field.name), field.andOr)
-//                        )
-//                    }
-//                }
-//            }
-            //criteriaQuery.where(criteriaBuilder.or(*predicates.toTypedArray()))
+            rootFilters?.forEach { filterGroup ->
+                filterGroup.filter as List<Filter>
+                filterGroup.filter.forEach {
+                    for (field in it.getFilters()) {
+                        predicates.add(
+                            field.addCondition(criteriaBuilder, root.get(field.name), field.andOr)
+                        )
+                    }
+                }
+            }
+            criteriaQuery.where(*predicates.toTypedArray())
             null
         }
     }
@@ -85,9 +85,11 @@ class RobQueryBuilder {
     ) {
         for (field in fields) {
             if (field.selectionSet.immediateFields.isNotEmpty()) {
-                val fetch: Fetch<Any, Any> = fetchJoin(f, field) as Fetch<Any, Any>
-                filters.addAll(filter(field, fetch as Fetch<Any, Any>))
-                joinsHelper(fetch, field.selectionSet.immediateFields, filters)
+                val fetch: Fetch<Any, Any>? = fetchJoin(f, field) as Fetch<Any, Any>?
+                if (fetch != null) {
+                    filters.addAll(filter(field, fetch as Fetch<Any, Any>))
+                    joinsHelper(fetch, field.selectionSet.immediateFields, filters)
+                }
             }
         }
     }
@@ -157,6 +159,11 @@ class RobQueryBuilder {
         fetch: Fetch<Any, Any>,
         field: SelectedField
     ): Fetch<out Any, out Any>? {
-        return fetch.fetch(field.name, JoinType.LEFT)
+        try {
+            return fetch.fetch(field.name, JoinType.LEFT)
+        } catch (e: Exception) {
+            println(e)
+        }
+        return null
     }
 }
