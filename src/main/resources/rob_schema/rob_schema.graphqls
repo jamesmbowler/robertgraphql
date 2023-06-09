@@ -3,10 +3,6 @@ scalar Long
 scalar BigDecimal
 
 type Query {
-    #rob_departments(filter: [DepartmentFilterGroup]) : [Department]
-#    rob_employees(filter: [[RobEmployeeFilter]]) : [Employee]
-#    rob_addresses(filter: [[RobAddressFilter]]): [Address]
-#    rob_organizations(filter: [[RobOrganizationsFilter]]): [Organization]
     rob_clubs(filter: [ClubsFilterGroup]): [Clubs]
     rob_venues(filter: [VenuesFilterGroup]): [Venues]
     rob_orders(filter: [OrdersFilterGroup]): [Orders]

@@ -84,13 +84,13 @@ class SpringSecurity @Autowired constructor(
                     .failureHandler(CustomAuthenticationFailureHandler())
                     .permitAll()
             }
-//            .rememberMe { rememberMe ->
-//                rememberMe
-//                    .key("uniqueAndSecret")
-//                    .tokenValiditySeconds(15770000)
-//                    //.rememberMeCookieName("yourRememberMeCookie")
-//                    .rememberMeServices(tokenBasedRememberMeServices())
-//            }
+            .rememberMe { rememberMe ->
+                rememberMe
+                    .key("uniqueAndSecret")
+                    .tokenValiditySeconds(15770000)
+                    //.rememberMeCookieName("yourRememberMeCookie")
+                    .rememberMeServices(tokenBasedRememberMeServices())
+            }
             //.addFilterAt(jsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .logout { logout ->
                 logout
