@@ -38,7 +38,7 @@ class CustomUserDetailsService(userRepository: UserRepository) : UserDetailsServ
         return roles.stream()
             .map<SimpleGrantedAuthority?>(Function<Role, SimpleGrantedAuthority?> { role: Role ->
                 SimpleGrantedAuthority(
-                    role.name
+                    role.toString()
                 )
             })
             .collect(Collectors.toList<SimpleGrantedAuthority?>())

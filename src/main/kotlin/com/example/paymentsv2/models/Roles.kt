@@ -9,9 +9,15 @@ class Role (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private val id: Long? = null,
 
-    @Column(nullable = false, unique = true)
-    val name: String? = null,
+    //@Column(nullable = false, unique = true
+    @Enumerated(EnumType.STRING)
+    val name: RolesEnums? = null,
 
     @ManyToMany(mappedBy = "roles")
     private val users: List<User>? = null
 )
+
+enum class RolesEnums {
+    ROLE_USER,
+    ROLE_ADMIN
+}

@@ -2,10 +2,12 @@ package com.example.paymentsv2.service
 
 import com.example.paymentsv2.dtos.UserModel
 import com.example.paymentsv2.models.Role
+import com.example.paymentsv2.models.RolesEnums
 import com.example.paymentsv2.models.User
 import com.example.paymentsv2.repositories.RoleRepository
 import com.example.paymentsv2.repositories.UserRepository
 import jakarta.transaction.Transactional
+import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
@@ -21,6 +23,9 @@ class UserServiceImpl(
     private val roleRepository: RoleRepository
     private val passwordEncoder: PasswordEncoder
 
+    var logger: org.slf4j.Logger = LoggerFactory.getLogger(UserServiceImpl::class.java)
+
+
     init {
         this.userRepository = userRepository
         this.roleRepository = roleRepository
@@ -28,14 +33,17 @@ class UserServiceImpl(
     }
 
     @Transactional
-    override fun saveUser(userDto: UserModel?) {
+    override fun saveUser(userDto: UserModel?, role: RolesEnums?) {
+        val password = userDto?.password ?: UUID.randomUUID().toString()
+
+        logger.info(password)
         val user = User(
             name = userDto?.firstName + " " + userDto?.lastName,
             email = userDto?.email,
-            password = passwordEncoder.encode(userDto?.password)
+            password = passwordEncoder.encode(password)
         )
 
-        var role: Role? = roleRepository.findByName("ROLE_ADMIN")
+        var role: Role? = roleRepository.findByName(role.toString())
         if (role == null) {
             role = checkRoleExist()
         }
@@ -68,6 +76,6 @@ class UserServiceImpl(
     }
 
     private fun checkRoleExist(): Role {
-        return roleRepository.save(Role(name = "ROLE_ADMIN"))
+        return roleRepository.save(Role(name = RolesEnums.ROLE_ADMIN))
     }
 }
