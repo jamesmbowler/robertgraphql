@@ -43,11 +43,11 @@ class UserServiceImpl(
             password = passwordEncoder.encode(password)
         )
 
-        var role: Role? = roleRepository.findByName(role.toString())
-        if (role == null) {
-            role = checkRoleExist()
-        }
-        user.roles = Arrays.asList(role)
+        //var role: Role? = roleRepository.findByName(role?.name)
+//        if (role == null) {
+//            role = checkRoleExist()
+//        }
+        user.roles = listOf(roleRepository.findByName(role?.name)!!)
         userRepository.save(user)
     }
 
@@ -76,6 +76,6 @@ class UserServiceImpl(
     }
 
     private fun checkRoleExist(): Role {
-        return roleRepository.save(Role(name = RolesEnums.ROLE_ADMIN))
+        return roleRepository.save(Role(name = RolesEnums.ROLE_ADMIN.toString()))
     }
 }

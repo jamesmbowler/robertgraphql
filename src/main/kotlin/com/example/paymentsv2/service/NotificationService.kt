@@ -17,7 +17,7 @@ class NotificationService @Autowired constructor(
     val resourceLoader: ResourceLoader
 ) {
 
-    fun sendNotification(registrationToken:String): Boolean {
+    fun sendNotification(registrationToken:String, orderId: Long): Boolean {
 
         val notification = Notification.builder()
             .setTitle("Your Order is ready")
@@ -28,7 +28,7 @@ class NotificationService @Autowired constructor(
 //            .setSound("default").build()
 
         val message = Message.builder()
-            //.putData("score", "850")
+            .putData("orderId", orderId.toString())
             //.putData("time", "2:45")
             .setNotification(notification)
             .setAndroidConfig(

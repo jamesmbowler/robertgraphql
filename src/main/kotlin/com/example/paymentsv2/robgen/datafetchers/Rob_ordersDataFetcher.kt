@@ -14,6 +14,7 @@ import com.netflix.graphql.dgs.InputArgument
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 
@@ -26,10 +27,10 @@ public class Rob_ordersDataFetcher {
   public lateinit var userRepository: UserRepository
 
   @DgsQuery
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public fun rob_orders(
       environment: DataFetchingEnvironment,
-      @InputArgument filter: List<FilterGroup<out Filter>>?,
-      @AuthenticationPrincipal userDetails: UserDetails
+      @InputArgument filter: List<FilterGroup<out Filter>>?
   ): List<Orders> {
     val spec:Specification<Orders>? =
         RobQueryBuilder().build(environment.selectionSet.immediateFields, filter)
@@ -39,16 +40,25 @@ public class Rob_ordersDataFetcher {
     public fun myorders(
         environment: DataFetchingEnvironment,
         @InputArgument filter: List<FilterGroup<out Filter>> = listOf(),
+        @InputArgument id: Int? = null,
         @AuthenticationPrincipal userDetails: UserDetails
     ): List<Orders> {
         val mutableFilter = filter.toMutableList()
 
-        mutableFilter.add(FilterGroup(filter = listOf(
+        val orderFilters = listOf(
             OrdersFilter(userId = IntFilterField(
                 value = userRepository.findByEmail(userDetails.username)?.id?.toInt(),
                 operator = "eq"
-            )
-        ))))
+        )))
+
+        if (id != null) {
+            orderFilters.plus(OrdersFilter(id = IntFilterField(
+                value = id,
+                operator = "eq"
+            )))
+        }
+
+        mutableFilter.add(FilterGroup(filter = orderFilters))
 
         val spec:Specification<Orders>? =
             RobQueryBuilder().build(environment.selectionSet.immediateFields, mutableFilter.toList())

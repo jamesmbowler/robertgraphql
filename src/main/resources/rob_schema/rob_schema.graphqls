@@ -7,7 +7,7 @@ type Query {
     rob_venues(filter: [VenuesFilterGroup]): [Venues]
     rob_orders(filter: [OrdersFilterGroup]): [Orders]
     me: User
-    myorders: [Orders]
+    myorders(id: Int): [Orders]
 }
 
 type Mutation {

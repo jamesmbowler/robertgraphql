@@ -1,6 +1,7 @@
 package com.example.paymentsv2.controllers
 
 import com.example.paymentsv2.dtos.UserModel
+import com.example.paymentsv2.models.RolesEnums
 import com.example.paymentsv2.models.User
 import com.example.paymentsv2.service.UserService
 import jakarta.validation.Valid
@@ -80,10 +81,10 @@ class AuthController @Autowired constructor(
         }
         if (result.hasErrors()) {
             model.addAttribute("user", user)
-            return "newuser"
+            return "users"
         }
-        userService.saveUser(user)
-        return "redirect:/newuser?success"
+        userService.saveUser(user, RolesEnums.ROLE_USER)
+        return "redirect:/users?success"
     }
 
     @GetMapping("/users")

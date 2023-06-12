@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 
 @SpringBootApplication
-@ComponentScan(basePackages = ["com.example.paymentsv2"])
+@ComponentScan
+	//(basePackages = ["com.example.paymentsv2"])
 @EnableJpaRepositories
 @EnableMethodSecurity(securedEnabled = true)
 class Paymentsv2Application

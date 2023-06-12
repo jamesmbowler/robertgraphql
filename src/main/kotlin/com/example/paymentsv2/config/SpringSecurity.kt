@@ -68,6 +68,8 @@ class SpringSecurity @Autowired constructor(
                 authorize.requestMatchers("/graphiql/**").hasRole("ADMIN")
                 authorize.requestMatchers("/order/**").hasRole("ADMIN")
                 authorize.requestMatchers("/users").hasRole("ADMIN")
+                authorize.requestMatchers("/adduser/**").hasRole("ADMIN")
+                authorize.requestMatchers("/newuser/**").hasRole("ADMIN")
             }
             //.addFilterBefore(JsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .formLogin { form ->
@@ -84,41 +86,25 @@ class SpringSecurity @Autowired constructor(
                     .failureHandler(CustomAuthenticationFailureHandler())
                     .permitAll()
             }
-//            .rememberMe { rememberMe ->
-//                rememberMe
-//                    .key("uniqueAndSecret")
-//                    .tokenValiditySeconds(15770000)
-//                    //.rememberMeCookieName("yourRememberMeCookie")
-//                    .rememberMeServices(tokenBasedRememberMeServices())
-//            }
+            .rememberMe { rememberMe ->
+                rememberMe
+                    .key("uniqueAndSecret")
+                    .rememberMeParameter("remember-me")
+                    .tokenValiditySeconds(15770000)
+                    //.rememberMeCookieName("yourRememberMeCookie")
+                    .rememberMeServices(tokenBasedRememberMeServices())
+            }
             //.addFilterAt(jsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .logout { logout ->
                 logout
                     .logoutRequestMatcher(AntPathRequestMatcher("/logout"))
                     .permitAll()
             }
-//            .exceptionHandling { exceptionHandling ->
-//                exceptionHandling.accessDeniedHandler {
-//                        request: HttpServletRequest,
-//                        response: HttpServletResponse,
-//                        accessDeniedException: org.springframework.security.access.AccessDeniedException ->
-//                    response.status = HttpStatus.FORBIDDEN.value()
-//                    response.contentType = MediaType.APPLICATION_JSON_VALUE
-//                    response.writer.write(
-//                        objectMapper.writeValueAsString(
-//                            mapOf(
-//                                "error" to "Forbidden",
-//                                "message" to "You don't have permission to access this page"
-//                            )
-//                        )
-//                    )
-//                }
-            //}
         return http.build()
     }
 
     fun tokenBasedRememberMeServices(): TokenBasedRememberMeServices? {
-        val rememberMeServices = TokenBasedRememberMeServices("yourRememberMeKey", userDetailsService)
+        val rememberMeServices = TokenBasedRememberMeServices("uniqueAndSecret", userDetailsService)
         rememberMeServices.setAlwaysRemember(true)
         return rememberMeServices
     }

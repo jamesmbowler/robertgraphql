@@ -51,10 +51,6 @@ class MenuMutations @Autowired constructor(
             .orElseThrow { throw IllegalArgumentException("Menu item not found with ID: $menuItemId") }
 
         menuItem?.soldOut = soldOut
-        val phoneId = "eNh56KquSHu_Xf6mZfzOBk:APA91bEoIB4A1rVurvDQhv1spDTeGLbtEU6NCpyieFWlpEdzegXgQH1u4fyzdT3rwdfB4elSEokAkdQAI96MNP4gK6lAHLZllqzo9hlLOX9xSybSce6oSGE6XHERpFOK4dd3ICt-oOqE"
-        val eId = "frT6IWvRRkyx1DpdZTLyow:APA91bH9YeZ7at55x0krQPMFIH8T-eVYnwbLo4ZnHkwgIaw1RqWuMd33YPVf856cHYBybrddYZFE_1szrMIxqeYkZfcYQqJH5zSXNHabXe0NgL10fW7JlbgnPE3TZOQDJ0-qGGE4JAJv"
-        //notificationService.sendNotification(eId)
-        notificationService.sendNotification(phoneId)
         return menuItemRepository.save(menuItem!!)
     }
 }

@@ -25,14 +25,11 @@
         <div class="card">
             <div th:if="${param.success}">
                 <div class="alert alert-info">You've successfully registered
-                    to our app!</div>
-            </div>
-            <div class="card-header">
-                <h2 class="text-center">Add User</h2>
+                    a user to our app!</div>
             </div>
                 <form method="post" role="form" th:action="@{/adduser}" th:object="${user}">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">First Name</label>
                                 <input class="form-control"
@@ -47,7 +44,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">Last Name</label>
                                 <input class="form-control"
@@ -62,7 +59,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">Email</label>
                                 <input class="form-control"
@@ -74,6 +71,22 @@
                                 />
                                 <p th:errors="*{email}" class="text-danger"
                                    th:if="${#fields.hasErrors('email')}">
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Member ID</label>
+                                <input class="form-control"
+                                       id="memberId"
+                                       name="memberId"
+                                       placeholder="Enter Member Id"
+                                       th:field="*{memberId}"
+                                       type="number"
+                                />
+                                <p th:errors="*{memberId}" class="text-danger"
+                                   th:if="${#fields.hasErrors('memberId')}">
                                 </p>
                             </div>
                         </div>

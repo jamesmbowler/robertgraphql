@@ -13,13 +13,8 @@ import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsMutation
 import com.netflix.graphql.dgs.InputArgument
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
-
-
-
 
 @DgsComponent
 class OrderMutations @Autowired constructor(
@@ -30,19 +25,22 @@ class OrderMutations @Autowired constructor(
 ) {
 
     @DgsMutation
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    fun createOrder(@InputArgument order: List<OrderItemInput>): Orders {
-        val authentication: Authentication? = SecurityContextHolder.getContext().authentication
+    //@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    fun createOrder(
+        @InputArgument order: List<OrderItemInput>,
+        @AuthenticationPrincipal userDetails: UserDetails
+    ): Orders {
+       // val authentication: Authentication? = SecurityContextHolder.getContext().authentication
 
-        var user: User? = null
-        if (authentication != null && authentication.isAuthenticated()) {
-            val principal: Any = authentication.getPrincipal()
-            if (principal is UserDetails) {
-                val username = principal.username
-                // Handle the username or perform additional operations
-                user = userRepository.findByEmail(username)
-            }
-        }
+        val user: User? = userRepository.findByEmail(userDetails.username)
+//        if (authentication != null && authentication.isAuthenticated()) {
+//            val principal: Any = authentication.getPrincipal()
+//            if (principal is UserDetails) {
+//                val username = principal.username
+//                // Handle the username or perform additional operations
+//                user = userRepository.findByEmail(username)
+//            }
+//        }
         val menuItems = menuItemRepository.findAllById(order.map { it.menuItemId })
 
         val newOrder = orderRepository.save(Orders(
@@ -79,7 +77,7 @@ class OrderMutations @Autowired constructor(
         order?.status = status
         val fcmToken: String? =  order?.user?.fcmToken
         if (fcmToken?.isNotEmpty() == true) {
-            notificationService.sendNotification(fcmToken)
+            notificationService.sendNotification(fcmToken, orderId)
         }
         return orderRepository.save(order!!)
     }

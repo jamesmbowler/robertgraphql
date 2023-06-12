@@ -9,9 +9,9 @@ class Role (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private val id: Long? = null,
 
-    //@Column(nullable = false, unique = true
-    @Enumerated(EnumType.STRING)
-    val name: RolesEnums? = null,
+    @Column(nullable = false, unique = true)
+    //@Enumerated(EnumType.STRING)
+    val name: String? = null,
 
     @ManyToMany(mappedBy = "roles")
     private val users: List<User>? = null
