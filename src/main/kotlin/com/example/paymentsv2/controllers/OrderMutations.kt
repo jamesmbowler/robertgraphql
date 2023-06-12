@@ -30,23 +30,15 @@ class OrderMutations @Autowired constructor(
         @InputArgument order: List<OrderItemInput>,
         @AuthenticationPrincipal userDetails: UserDetails
     ): Orders {
-       // val authentication: Authentication? = SecurityContextHolder.getContext().authentication
-
         val user: User? = userRepository.findByEmail(userDetails.username)
-//        if (authentication != null && authentication.isAuthenticated()) {
-//            val principal: Any = authentication.getPrincipal()
-//            if (principal is UserDetails) {
-//                val username = principal.username
-//                // Handle the username or perform additional operations
-//                user = userRepository.findByEmail(username)
-//            }
-//        }
+
         val menuItems = menuItemRepository.findAllById(order.map { it.menuItemId })
 
         val newOrder = orderRepository.save(Orders(
             id = null,
             isActive = true,
             name = null,
+            status = OrderStatus.NEW,
             total = order.sumOf { orderItemInput ->
                 menuItems.find { it?.id == orderItemInput.menuItemId }?.price!!
             },

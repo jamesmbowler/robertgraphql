@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component
 
 
 @Configuration
-@Order(1)
 @EnableWebSecurity
 class SpringSecurity @Autowired constructor(
     val queryService: QueryService,
@@ -109,27 +108,6 @@ class SpringSecurity @Autowired constructor(
         return rememberMeServices
     }
 
-//    @Bean
-//    @Order(2)
-//    @Throws(Exception::class)
-//    fun filterChainApp(http: HttpSecurity): SecurityFilterChain {
-//        http
-//            .csrf().disable()
-//            .formLogin { form ->
-//                form
-//                    .loginProcessingUrl("/login_m")
-//                    .defaultSuccessUrl("/")
-//                    .successHandler(CustomAuthenticationSuccessHandler(
-//                        objectMapper,
-//                        userDetailsService!!,
-//                        queryService,
-//                        userRepository
-//                    ))
-//                    .failureHandler(CustomAuthenticationFailureHandler())
-//            }
-//        return http.build()
-//    }
-
     @Autowired
     @Throws(Exception::class)
     fun configureGlobal(auth: AuthenticationManagerBuilder) {
@@ -202,77 +180,3 @@ class CustomAuthenticationFailureHandler : AuthenticationFailureHandler {
         response.writer.flush()
     }
 }
-
-//class JsonAuthenticationConverter(private val objectMapper: ObjectMapper) : AuthenticationConverter {
-//    override fun convert(request: HttpServletRequest): Authentication? {
-//        try {
-//            val jsonNode = objectMapper.readTree(request.reader)
-//            val username = jsonNode.get("username").textValue()
-//            val password = jsonNode.get("password").textValue()
-//            return UsernamePasswordAuthenticationToken(username, password)
-//        } catch (e: Exception) {
-//            return null
-//        }
-//    }
-//}
-
-//class JsonUsernamePasswordAuthenticationFilter() :
-//    UsernamePasswordAuthenticationFilter() {
-//
-//    @Autowired
-//    lateinit var authentication: AuthenticationManager
-//
-//    override fun getAuthenticationManager(): AuthenticationManager? {
-//        return authentication
-//    }
-//    override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication {
-//        val credentials = ObjectMapper().readValue(request.inputStream, Credentials::class.java)
-//        val authenticationToken = UsernamePasswordAuthenticationToken(credentials.username, credentials.password)
-//        return authentication.authenticate(authenticationToken)
-//    }
-
-//    override fun successfulAuthentication(
-//        request: HttpServletRequest,
-//        response: HttpServletResponse,
-//        chain: FilterChain,
-//        authResult: Authentication
-//    ) {
-//        val token = Jwts.builder()
-//            .setSubject(authResult.name)
-//            .setExpiration(Date(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME))
-//            .signWith(SignatureAlgorithm.HS512, TOKEN_SECRET.toByteArray())
-//            .compact()
-//        response.addHeader("Authorization", "Bearer $token")
-//    }
-//}
-
-//@Component
-//class JsonAuthenticationFilter : UsernamePasswordAuthenticationFilter() {
-//
-//    @Autowired
-//    lateinit var authentication: AuthenticationManager
-//
-//    override fun getAuthenticationManager(): AuthenticationManager? {
-//        return authentication
-//    }
-//
-//    @Throws(AuthenticationException::class)
-//    override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication {
-//        // Parse the JSON request body and extract the username and password
-//        val mapper = ObjectMapper()
-//        val credentials: Credentials
-//        credentials = try {
-//            mapper.readValue(request.inputStream, Credentials::class.java)
-//        } catch (e: IOException) {
-//            throw RuntimeException("Unable to parse JSON request body", e)
-//        }
-//        val username: String = credentials.username
-//        val password: String = credentials.password
-//
-//        // Create an authentication token
-//        val authToken = UsernamePasswordAuthenticationToken(username, password)
-//
-//        // Authenticate the user
-//        return authentication.authenticate(authToken)
-//    }
-//}

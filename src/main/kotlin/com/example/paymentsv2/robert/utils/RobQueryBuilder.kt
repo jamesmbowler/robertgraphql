@@ -13,7 +13,8 @@ const val filterName = "filter"
 class RobQueryBuilder {
     fun <T>build(
         fields: List<SelectedField>,
-        rootFilters: List<FilterGroup<out Filter>>?
+        rootFilters: List<FilterGroup<out Filter>>?,
+        order: Map<String, String>? = null
     ): Specification<T>? {
         val filters: MutableSet<Pair<Join<Any,Any>, MutableList<Filter>>> = mutableSetOf()
         var predicates = mutableListOf<Predicate>()
@@ -40,6 +41,16 @@ class RobQueryBuilder {
                     }
                 }
             }
+
+            val orderExpressions: List<Order>? = order?.entries?.map {(key, value) ->
+                when (value) {
+                    "ASC" -> criteriaBuilder.asc(root.get<T>(key))
+                    "DESC" -> criteriaBuilder.desc(root.get<T>(key))
+                    else -> throw IllegalArgumentException("Invalid order key: ${key}")
+                }
+            }
+            criteriaQuery.orderBy(orderExpressions)
+
             criteriaQuery.where(*predicates.toTypedArray())
             null
         }

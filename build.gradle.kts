@@ -63,7 +63,7 @@ dependencies {
 	implementation("io.hypersistence:hypersistence-utils-hibernate-62:3.3.2")
 	implementation("com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations")
 	runtimeOnly("com.mysql:mysql-connector-j")
-	runtimeOnly("org.springframework.boot:spring-boot-devtools")
+	//runtimeOnly("org.springframework.boot:spring-boot-devtools")
 	testImplementation("org.springframework.graphql:spring-graphql-test")
 	//implementation(gradleApi())
 }

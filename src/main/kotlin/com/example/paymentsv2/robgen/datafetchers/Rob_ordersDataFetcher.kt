@@ -3,8 +3,10 @@ package com.example.paymentsv2.robgen.datafetchers
 import com.example.paymentsv2.models.Orders
 import com.example.paymentsv2.repositories.UserRepository
 import com.example.paymentsv2.robert.filters.Filter
+import com.example.paymentsv2.robert.filters.FilterField
 import com.example.paymentsv2.robert.filters.FilterGroup
 import com.example.paymentsv2.robert.filters.IntFilterField
+import com.example.paymentsv2.robert.utils.OrderStatus
 import com.example.paymentsv2.robert.utils.RobQueryBuilder
 import com.example.paymentsv2.robgen.filters.OrdersFilter
 import com.example.paymentsv2.robgen.repositories.Rob_ordersRepository
@@ -28,12 +30,30 @@ public class Rob_ordersDataFetcher {
 
   @DgsQuery
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public fun rob_orders(
+  public fun admin_allorders(
       environment: DataFetchingEnvironment,
-      @InputArgument filter: List<FilterGroup<out Filter>>?
+      @InputArgument status: OrderStatus? = null,
+      //@InputArgument filter: List<FilterGroup<out Filter>>? = listOf()
   ): List<Orders> {
+
+      val mutableFilter = mutableListOf<FilterGroup<out Filter>>()
+      val order = mapOf(
+          "id" to "DESC"
+      )
+      val orderFilters = status?.let {
+          listOf(
+              OrdersFilter(
+                  status = FilterField(
+                      value = it.name,
+                      operator = "eq"
+                  )
+              )
+          )
+      }
+
+      mutableFilter.add(FilterGroup(filter = orderFilters))
     val spec:Specification<Orders>? =
-        RobQueryBuilder().build(environment.selectionSet.immediateFields, filter)
+        RobQueryBuilder().build(environment.selectionSet.immediateFields, mutableFilter, order)
     return repository.findAll(spec!!)
   }
     @DgsQuery
@@ -44,7 +64,6 @@ public class Rob_ordersDataFetcher {
         @AuthenticationPrincipal userDetails: UserDetails
     ): List<Orders> {
         val mutableFilter = filter.toMutableList()
-
         val orderFilters = listOf(
             OrdersFilter(userId = IntFilterField(
                 value = userRepository.findByEmail(userDetails.username)?.id?.toInt(),
@@ -60,8 +79,16 @@ public class Rob_ordersDataFetcher {
 
         mutableFilter.add(FilterGroup(filter = orderFilters))
 
+        val order = mapOf(
+            "id" to "DESC"
+        )
         val spec:Specification<Orders>? =
-            RobQueryBuilder().build(environment.selectionSet.immediateFields, mutableFilter.toList())
+            RobQueryBuilder().build(
+                environment.selectionSet.immediateFields,
+                mutableFilter.toList(),
+                order
+            )
+
         return repository.findAll(spec!!)
     }
 }
