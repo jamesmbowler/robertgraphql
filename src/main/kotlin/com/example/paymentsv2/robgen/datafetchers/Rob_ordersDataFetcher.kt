@@ -2,10 +2,7 @@ package com.example.paymentsv2.robgen.datafetchers
 
 import com.example.paymentsv2.models.Orders
 import com.example.paymentsv2.repositories.UserRepository
-import com.example.paymentsv2.robert.filters.Filter
-import com.example.paymentsv2.robert.filters.FilterField
-import com.example.paymentsv2.robert.filters.FilterGroup
-import com.example.paymentsv2.robert.filters.IntFilterField
+import com.example.paymentsv2.robert.filters.*
 import com.example.paymentsv2.robert.utils.OrderStatus
 import com.example.paymentsv2.robert.utils.RobQueryBuilder
 import com.example.paymentsv2.robgen.filters.OrdersFilter
@@ -40,18 +37,18 @@ public class Rob_ordersDataFetcher {
       val order = mapOf(
           "id" to "DESC"
       )
-      val orderFilters = status?.let {
-          listOf(
+      if (status != null){
+          mutableFilter.add(FilterGroup(filter = listOf(
               OrdersFilter(
-                  status = FilterField(
-                      value = it.name,
+                  status = EnumFilterField(
+                      value = status,
                       operator = "eq"
                   )
               )
-          )
+          )))
       }
 
-      mutableFilter.add(FilterGroup(filter = orderFilters))
+      //mutableFilter.add(FilterGroup(filter = orderFilters))
     val spec:Specification<Orders>? =
         RobQueryBuilder().build(environment.selectionSet.immediateFields, mutableFilter, order)
     return repository.findAll(spec!!)

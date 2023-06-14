@@ -49,7 +49,9 @@ class RobQueryBuilder {
                     else -> throw IllegalArgumentException("Invalid order key: ${key}")
                 }
             }
-            criteriaQuery.orderBy(orderExpressions)
+            if (orderExpressions != null) {
+                criteriaQuery.orderBy(orderExpressions)
+            }
 
             criteriaQuery.where(*predicates.toTypedArray())
             null
