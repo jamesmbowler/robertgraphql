@@ -16,7 +16,6 @@ class MenuMutations @Autowired constructor(
     var menuItemRepository: MenuItemRepository,
     var notificationService: NotificationService
 ) {
-
     @DgsMutation
     fun createMenuItem(@InputArgument menuItem: NewMenuItemInput): MenuItems {
         val menu = menuRepository.getMenuWithItems(menuItem.menuId!!)
@@ -46,11 +45,11 @@ class MenuMutations @Autowired constructor(
     }
 
     @DgsMutation
-    fun updateSoldOut(@InputArgument menuItemId: Long, soldOut: Boolean): MenuItems {
+    fun updateMenuItem(@InputArgument menuItemId: Long, quantity: Int): MenuItems {
         val menuItem = menuItemRepository.findById(menuItemId)
             .orElseThrow { throw IllegalArgumentException("Menu item not found with ID: $menuItemId") }
 
-        menuItem?.soldOut = soldOut
+        menuItem?.quantity = quantity
         return menuItemRepository.save(menuItem!!)
     }
 }

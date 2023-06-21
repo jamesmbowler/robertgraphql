@@ -13,6 +13,7 @@ import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsMutation
 import com.netflix.graphql.dgs.InputArgument
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 
@@ -24,6 +25,7 @@ class OrderMutations @Autowired constructor(
     var notificationService: NotificationService
 ) {
 
+    //@Transactional
     @DgsMutation
     //@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     fun createOrder(
@@ -43,8 +45,9 @@ class OrderMutations @Autowired constructor(
                 menuItems.find { it?.id == orderItemInput.menuItemId }?.price!!
             },
             items = null,
-            user = user
+            userId = user?.id
         ))
+        newOrder.user = setOf(user)
 
         newOrder.items = order.map { it ->
             OrderItems(
@@ -67,11 +70,11 @@ class OrderMutations @Autowired constructor(
             .orElseThrow { throw IllegalArgumentException("Menu item not found with ID: $orderId") }
 
         order?.status = status
-        val fcmToken: String? =  order?.user?.fcmToken
+        val fcmToken: String? =  userRepository.findByIdOrNull(order?.userId!!)?.fcmToken
         if (fcmToken?.isNotEmpty() == true) {
             notificationService.sendNotification(fcmToken, orderId)
         }
-        return orderRepository.save(order!!)
+        return orderRepository.save(order)
     }
 
 }

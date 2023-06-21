@@ -12,6 +12,7 @@ class MenuItems(
    var id: Long?,
    var isActive: Boolean? = true,
    var soldOut: Boolean? = false,
+   var quantity: Int? = null,
    var name: String?,
    var description: String?,
    var price: BigDecimal?,

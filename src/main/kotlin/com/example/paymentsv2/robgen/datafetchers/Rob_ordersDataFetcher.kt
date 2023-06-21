@@ -74,7 +74,7 @@ public class Rob_ordersDataFetcher {
             )))
         }
 
-        mutableFilter.add(FilterGroup(filter = orderFilters))
+        mutableFilter.add(FilterGroup(filter = listOf()))
 
         val order = mapOf(
             "id" to "DESC"

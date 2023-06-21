@@ -27,8 +27,8 @@ class User (
     @Column(nullable = true)
     var memberId: Long? =null,
 
-    @OneToMany(mappedBy = "user")
-    var orders: List<Orders> = ArrayList(),
+    @ManyToMany(mappedBy = "user")
+    var orders: Set<Orders>? = null,
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinTable(

@@ -16,13 +16,16 @@ class Orders(
    @Enumerated(EnumType.STRING)
    var status: OrderStatus? = null,
    var name: String? = null,
-   @ManyToOne
-   var user: User? = null,
+
+   @ManyToMany(cascade = [CascadeType.ALL])
+   @JoinTable(name = "orders_users")
+   var user: Set<User?>? = null,
 
    @Column(name = "user_id", insertable = false, updatable = false)
    var userId: Long? = null,
 
    var total: BigDecimal? = null,
+
    @ManyToMany(cascade = [CascadeType.ALL])
    @JoinTable(name = "orders_items")
    var items: List<OrderItems>? = null,

@@ -15,7 +15,7 @@ type Mutation {
     createOrder(order: [OrderItemInput]): Orders
     updateOrder(orderId: Long, status: OrderStatus): Orders
     createMenuItem(menuItem: [MenuItemInput]): MenuItems
-    updateSoldOut(menuItemId: Long, soldOut: Boolean): MenuItems
+    updateMenuItem(menuItemId: Long, quantity: Int): MenuItems
 }
 
 enum OrderStatus {
@@ -40,6 +40,8 @@ input MenuItemInput {
 type User {
     id: ID,
     name: String,
+    memberId: Long,
+    email: String,
     roles: [Roles]
 }
 type Roles {
@@ -105,6 +107,7 @@ type MenuItems {
     price: String
     isActive: Boolean
     soldOut: Boolean
+    quantity: Int
 }
 
 type OrderItems {
@@ -117,7 +120,9 @@ type OrderItems {
 type Orders {
     id: ID
     total: Float
+    status: OrderStatus
     items: [OrderItems]
+    user: [User]
 }
 
 
