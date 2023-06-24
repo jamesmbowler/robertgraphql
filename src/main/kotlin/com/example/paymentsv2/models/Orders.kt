@@ -21,7 +21,7 @@ class Orders(
    @JoinTable(name = "orders_users")
    var user: Set<User?>? = null,
 
-   @Column(name = "user_id", insertable = false, updatable = false)
+   @Column(name = "user_id", updatable = false)
    var userId: Long? = null,
 
    var total: BigDecimal? = null,
