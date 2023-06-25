@@ -15,7 +15,13 @@ type Mutation {
     createOrder(order: [OrderItemInput]): Orders
     updateOrder(orderId: Long, status: OrderStatus): Orders
     createMenuItem(menuItem: [MenuItemInput]): MenuItems
-    updateMenuItem(menuItemId: Long, quantity: Int): MenuItems
+    updateMenuItem(menuItemId: Long, data: MenuUpdateData): MenuItems
+}
+
+input MenuUpdateData {
+    quantity: Int
+    name: String
+    price: Float
 }
 
 enum OrderStatus {
@@ -31,6 +37,7 @@ input OrderItemInput {
 input MenuItemInput {
     menuId: Long,
     isActive: Boolean,
+    quantity: Int,
     soldOut: Boolean,
     name: String,
     description: String,

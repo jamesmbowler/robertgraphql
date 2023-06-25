@@ -1,5 +1,6 @@
 package com.example.paymentsv2.controllers
 
+import com.example.paymentsv2.inputs.MenuUpdateData
 import com.example.paymentsv2.inputs.NewMenuItemInput
 import com.example.paymentsv2.models.MenuItems
 import com.example.paymentsv2.repositories.MenuItemRepository
@@ -45,11 +46,19 @@ class MenuMutations @Autowired constructor(
     }
 
     @DgsMutation
-    fun updateMenuItem(@InputArgument menuItemId: Long, quantity: Int): MenuItems {
+    fun updateMenuItem(@InputArgument menuItemId: Long, data: MenuUpdateData): MenuItems {
         val menuItem = menuItemRepository.findById(menuItemId)
             .orElseThrow { throw IllegalArgumentException("Menu item not found with ID: $menuItemId") }
 
-        menuItem?.quantity = quantity
+        if (data.quantity != null)
+            menuItem?.quantity = data.quantity
+
+        if (data.name != null)
+            menuItem?.name = data.name
+
+        if (data.price != null)
+            menuItem?.price = data.price.toBigDecimal()
+
         return menuItemRepository.save(menuItem!!)
     }
 }
