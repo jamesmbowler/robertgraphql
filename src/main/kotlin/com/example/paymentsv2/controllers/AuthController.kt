@@ -51,23 +51,23 @@ class AuthController @Autowired constructor(
     }
 
     // handler method to handle register user form submit request
-//    @PostMapping("/register/save")
-//    fun registration(
-//        @Valid @ModelAttribute("user") user: UserModel,
-//        result: BindingResult,
-//        model: Model
-//    ): String {
-//        val existing: User? = userService.findByEmail(user.email.toString().trim())
-//        if (existing != null) {
-//            result.rejectValue("email", "email error", "There is already an account registered with that email")
-//        }
-//        if (result.hasErrors()) {
-//            model.addAttribute("user", user)
-//            return "register"
-//        }
-//        userService.saveUser(user)
-//        return "redirect:/register?success"
-//    }
+    @PostMapping("/register/save")
+    fun registration(
+        @Valid @ModelAttribute("user") user: UserModel,
+        result: BindingResult,
+        model: Model
+    ): String {
+        val existing: User? = userService.findByEmail(user.email.toString().trim())
+        if (existing != null) {
+            result.rejectValue("email", "email error", "There is already an account registered with that email")
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("user", user)
+            return "register"
+        }
+        userService.saveUser(user)
+        return "redirect:/register?success"
+    }
 
     @PostMapping("/adduser")
     fun adduser(
